@@ -898,77 +898,179 @@ const WhyUs = ({ lang }: { lang: Language }) => {
 
 const Portfolio = ({ lang }: { lang: Language }) => {
   const t = translations[lang].portfolio;
-  const [filter, setFilter] = useState('all');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
 
-  const projects = [
-    { title: 'Moderne Woning', category: 'windows', image: '/project-1.jpeg' },
-    { title: 'Luxe Schuifpui', category: 'hst', image: '/project-2.jpeg' },
-    { title: 'Keralit Gevel', category: 'cladding', image: '/project-3.jpeg' },
-    { title: 'Dakramen Zolder', category: 'roof', image: '/project-4.jpeg' },
-    { title: 'Design Voordeur', category: 'doors', image: '/project-1.jpeg' },
-    { title: 'Renovatie Ramen', category: 'windows', image: '/project-3.jpeg' },
-  ];
+  const galleryImages: Record<string, string[]> = {
+    windows: [
+      '/projekt%20%20okna%201.jpeg',
+      '/projekt%20%20okna%2011.jpeg',
+      '/projekt%20%20okna%20111.jpeg',
+      '/project-1.jpeg',
+      '/projekt%2033.jpeg',
+      '/projekt%20111.jpeg',
+    ],
+    doors: [
+      '/projekt%201.jpeg',
+      '/projekt%2011.jpeg',
+      '/projekt%203.jpeg',
+    ],
+    hst: [
+      '/project-2.jpeg',
+      '/projekt%2022.jpeg',
+    ],
+    roof: [
+      '/project-4.jpeg',
+      '/projekt%204.jpeg',
+      '/projekt%20444.jpeg',
+      '/projekt%204444.jpeg',
+    ],
+    cladding: [
+      '/project-3.jpeg',
+      '/projekt%20alsmer.jpeg',
+      '/projekt%20alsmer1.jpeg',
+      '/projekt%20alsmer2.jpeg',
+      '/projekt%20alsmer1.4.jpeg',
+      '/projekt%2044.jpeg',
+    ],
+    repair: [
+      '/projekt%20%20reperacje%20w%20drewnie%201.jpeg',
+      '/projekt%20%20reperacje%20w%20drewnie%2011.jpeg',
+      '/projekt%201111.jpeg',
+      '/projekt%2011111.jpeg',
+    ],
+  };
 
-  const filteredProjects = filter === 'all' ? projects : projects.filter(p => p.category === filter);
+  // First image of each category as the cover
+  const coverImages: Record<string, string> = Object.fromEntries(
+    Object.entries(galleryImages).map(([k, imgs]) => [k, imgs[0]])
+  );
 
-  const filters = [
-    { id: 'all', label: t.filterAll },
-    { id: 'windows', label: t.filterWindows },
-    { id: 'doors', label: t.filterDoors },
-    { id: 'hst', label: t.filterHST },
-    { id: 'roof', label: t.filterRoof },
-    { id: 'cladding', label: t.filterCladding },
-  ];
+  const activeCat = t.categories.find(c => c.id === activeCategory);
 
   return (
-    <section className="py-24 bg-zinc-950 pt-32">
+    <section className="py-24 bg-zinc-950 pt-32 min-h-screen">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-8">
-          <div>
-            <h2 className="text-4xl font-bold mb-4 tracking-tight">{t.title}</h2>
-            <div className="w-20 h-1 bg-blue-600"></div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {filters.map(f => (
+
+        {/* Lightbox */}
+        <AnimatePresence>
+          {lightboxImg && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 cursor-pointer"
+              onClick={() => setLightboxImg(null)}
+            >
+              <motion.img
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                src={lightboxImg}
+                alt=""
+                className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                onClick={e => e.stopPropagation()}
+              />
               <button
-                key={f.id}
-                onClick={() => setFilter(f.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${filter === f.id ? 'bg-blue-600 text-white' : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800'}`}
+                onClick={() => setLightboxImg(null)}
+                className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors"
               >
-                {f.label}
+                <X size={32} />
               </button>
-            ))}
-          </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Header */}
+        <div className="mb-12">
+          {activeCategory ? (
+            <div>
+              <button
+                onClick={() => setActiveCategory(null)}
+                className="flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors mb-6 font-medium"
+              >
+                <ChevronRight size={18} className="rotate-180" />
+                {t.backButton}
+              </button>
+              <h2 className="text-4xl font-bold mb-4 tracking-tight">{activeCat?.name}</h2>
+              <div className="w-20 h-1 bg-blue-600 mb-6"></div>
+              <p className="text-zinc-400 text-lg max-w-2xl">{activeCat?.description}</p>
+            </div>
+          ) : (
+            <div>
+              <h2 className="text-4xl font-bold mb-4 tracking-tight">{t.title}</h2>
+              <div className="w-20 h-1 bg-blue-600"></div>
+            </div>
+          )}
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project, i) => (
-              <motion.div
-                key={project.title}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer"
-              >
-                <img 
-                  src={project.image} 
-                  alt={project.title} 
-                  className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 backdrop-blur-[2px] flex flex-col justify-end p-8">
-                  <div className="translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                    <span className="text-blue-400 text-xs font-bold uppercase tracking-widest mb-2 block">{project.category}</span>
-                    <h4 className="text-2xl font-bold text-white tracking-tight">{project.title}</h4>
-                    <div className="w-0 group-hover:w-12 h-1 bg-blue-600 mt-4 transition-all duration-700 delay-100"></div>
+        {/* Category cards OR Gallery */}
+        <AnimatePresence mode="wait">
+          {!activeCategory ? (
+            <motion.div
+              key="categories"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {t.categories.map((cat) => (
+                <motion.div
+                  key={cat.id}
+                  whileHover={{ y: -8 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer"
+                >
+                  <img
+                    src={coverImages[cat.id]}
+                    alt={cat.name}
+                    className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-8">
+                    <h3 className="text-2xl font-bold text-white tracking-tight mb-2">{cat.name}</h3>
+                    <p className="text-zinc-300 text-sm line-clamp-2 mb-3">{cat.description}</p>
+                    <div className="flex items-center gap-2 text-blue-400 text-sm font-medium">
+                      <span>{galleryImages[cat.id]?.length ?? 0} foto's</span>
+                      <ArrowRight size={14} />
+                    </div>
                   </div>
-                </div>
-                <div className="absolute inset-0 border border-white/0 group-hover:border-white/10 transition-colors duration-500 rounded-2xl pointer-events-none"></div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+                  <div className="absolute inset-0 border border-white/0 group-hover:border-white/10 transition-colors duration-500 rounded-2xl pointer-events-none"></div>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="gallery"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+            >
+              {galleryImages[activeCategory]?.map((img, i) => (
+                <motion.div
+                  key={img}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.05 }}
+                  onClick={() => setLightboxImg(img)}
+                  className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer"
+                >
+                  <img
+                    src={img}
+                    alt={`${activeCat?.name} ${i + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/20 backdrop-blur-sm rounded-full p-3">
+                      <ArrowRight size={20} className="text-white rotate-[-45deg]" />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

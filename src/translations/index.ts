@@ -67,12 +67,12 @@ export interface Translation {
   };
   portfolio: {
     title: string;
-    filterAll: string;
-    filterWindows: string;
-    filterDoors: string;
-    filterHST: string;
-    filterRoof: string;
-    filterCladding: string;
+    backButton: string;
+    categories: {
+      id: string;
+      name: string;
+      description: string;
+    }[];
   };
   process: {
     title: string;
@@ -268,12 +268,15 @@ export const translations: Record<Language, Translation> = {
     },
     portfolio: {
       title: 'Onze Realisaties',
-      filterAll: 'Alles',
-      filterWindows: 'Ramen',
-      filterDoors: 'Deuren',
-      filterHST: 'HST',
-      filterRoof: 'Dakramen',
-      filterCladding: 'Gevels',
+      backButton: 'Terug naar categorieën',
+      categories: [
+        { id: 'windows', name: 'Ramen', description: 'Hoogwaardige kunststof en aluminium kozijnen voor optimale isolatie en een moderne uitstraling.' },
+        { id: 'doors', name: 'Deuren', description: 'Vakkundige plaatsing van voordeuren, achterdeuren en binnendeuren met perfecte afwerking.' },
+        { id: 'hst', name: 'HST', description: 'Hebe-Schiebe-Tür schuifsystemen voor maximale glasoppervlakken en moeiteloze bediening.' },
+        { id: 'roof', name: 'Dakramen', description: 'Professionele montage van dakramen voor meer licht en ventilatie op uw zolder.' },
+        { id: 'cladding', name: 'Gevels', description: 'Onderhoudsarme Keralit gevelbekleding voor een duurzame en luxe uitstraling.' },
+        { id: 'repair', name: 'Houtreperatie', description: 'Vakkundige restauratie en reparatie van houten kozijnen en ramen.' },
+      ],
     },
     process: {
       title: 'Hoe wij werken',
@@ -475,12 +478,15 @@ export const translations: Record<Language, Translation> = {
     },
     portfolio: {
       title: 'Our Projects',
-      filterAll: 'All',
-      filterWindows: 'Windows',
-      filterDoors: 'Doors',
-      filterHST: 'HST',
-      filterRoof: 'Roof Windows',
-      filterCladding: 'Cladding',
+      backButton: 'Back to categories',
+      categories: [
+        { id: 'windows', name: 'Windows', description: 'High-quality PVC and aluminium frames for optimal insulation and a modern look.' },
+        { id: 'doors', name: 'Doors', description: 'Expert installation of front doors, back doors and interior doors with perfect finishing.' },
+        { id: 'hst', name: 'HST', description: 'Hebe-Schiebe-Tür sliding systems for maximum glass surfaces and effortless operation.' },
+        { id: 'roof', name: 'Roof Windows', description: 'Professional installation of roof windows for more light and ventilation in your attic.' },
+        { id: 'cladding', name: 'Cladding', description: 'Low-maintenance Keralit cladding for a durable and luxurious appearance.' },
+        { id: 'repair', name: 'Wood Repair', description: 'Expert restoration and repair of wooden frames and windows.' },
+      ],
     },
     process: {
       title: 'Our Process',
@@ -682,12 +688,15 @@ export const translations: Record<Language, Translation> = {
     },
     portfolio: {
       title: 'Nasze Realizacje',
-      filterAll: 'Wszystkie',
-      filterWindows: 'Okna',
-      filterDoors: 'Drzwi',
-      filterHST: 'HST',
-      filterRoof: 'Okna dachowe',
-      filterCladding: 'Elewacje',
+      backButton: 'Powrót do kategorii',
+      categories: [
+        { id: 'windows', name: 'Okna', description: 'Wysokiej jakości okna PCV i aluminiowe zapewniające optymalną izolację i nowoczesny wygląd.' },
+        { id: 'doors', name: 'Drzwi', description: 'Profesjonalny montaż drzwi wejściowych, tylnych i wewnętrznych z perfekcyjnym wykończeniem.' },
+        { id: 'hst', name: 'HST', description: 'Systemy przesuwne Hebe-Schiebe-Tür dla maksymalnych powierzchni szklanych i łatwej obsługi.' },
+        { id: 'roof', name: 'Okna dachowe', description: 'Profesjonalny montaż okien dachowych dla większego światła i wentylacji na poddaszu.' },
+        { id: 'cladding', name: 'Elewacje', description: 'Bezobsługowa elewacja Keralit zapewniająca trwały i luksusowy wygląd.' },
+        { id: 'repair', name: 'Naprawa drewna', description: 'Fachowa renowacja i naprawa drewnianych ram okiennych i okien.' },
+      ],
     },
     process: {
       title: 'Jak pracujemy',
