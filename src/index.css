@@ -37,3 +37,113 @@
 .animate-marquee-reverse {
   animation: marquee-reverse 30s linear infinite;
 }
+
+/* === 3D Business Card Showcase === */
+.perspective-container {
+  perspective: 1800px;
+  perspective-origin: center;
+}
+
+.card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.card-3d:hover {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* Holographic shimmer overlay */
+@keyframes holoShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.holo-shimmer {
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(100, 150, 255, 0.15) 30%,
+    rgba(100, 200, 255, 0.25) 40%,
+    rgba(150, 100, 255, 0.15) 50%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: holoShimmer 4s ease-in-out infinite;
+}
+
+/* Glowing border pulse */
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(59, 130, 246, 0.3),
+      0 0 60px rgba(59, 130, 246, 0.1),
+      inset 0 0 20px rgba(59, 130, 246, 0.05);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(59, 130, 246, 0.5),
+      0 0 80px rgba(59, 130, 246, 0.2),
+      inset 0 0 30px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.glow-border {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* Float animation */
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0px) rotateX(2deg); }
+  50% { transform: translateY(-12px) rotateX(-2deg); }
+}
+
+.float-card {
+  animation: floatCard 6s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+/* Ambient particle glow */
+@keyframes particleFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+  25% { transform: translate(30px, -20px) scale(1.2); opacity: 0.8; }
+  50% { transform: translate(-20px, -40px) scale(0.8); opacity: 0.3; }
+  75% { transform: translate(15px, -10px) scale(1.1); opacity: 0.6; }
+}
+
+/* Scan line effect */
+@keyframes scanLine {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(200%); }
+}
+
+.scan-line::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 30%;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(59, 130, 246, 0.08),
+    transparent
+  );
+  animation: scanLine 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Reflection effect */
+.card-reflection {
+  -webkit-box-reflect: below 8px linear-gradient(transparent 60%, rgba(255,255,255,0.06));
+}

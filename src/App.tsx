@@ -301,6 +301,94 @@ const Hero = ({ lang }: { lang: Language }) => {
   );
 };
 
+const BusinessCardFlip = () => {
+  const [flipped, setFlipped] = useState(false);
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      className="flex flex-col items-center"
+    >
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={isInView ? { opacity: 1 } : {}}
+        transition={{ delay: 0.4 }}
+        className="text-zinc-500 text-sm mb-8 tracking-[0.2em] uppercase"
+      >
+        {flipped ? '← Klik om terug te draaien' : 'Klik om te draaien →'}
+      </motion.p>
+
+      <div className="perspective-container">
+        <motion.div
+          className="w-[340px] sm:w-[460px] md:w-[540px] aspect-[16/9] relative cursor-pointer"
+          style={{ transformStyle: 'preserve-3d' }}
+          animate={{ rotateY: flipped ? 180 : 0 }}
+          transition={{ duration: 0.9, ease: [0.23, 1, 0.32, 1] }}
+          onClick={() => setFlipped(!flipped)}
+          whileHover={{ scale: 1.03 }}
+        >
+          {/* Front */}
+          <div className="card-face absolute inset-0 rounded-2xl overflow-hidden glow-border">
+            <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-blue-500/40 via-transparent to-purple-500/40 p-[1px]">
+              <div className="w-full h-full rounded-2xl bg-zinc-950" />
+            </div>
+            <div className="relative w-full h-full rounded-2xl overflow-hidden scan-line">
+              <img
+                src="/wizyt%C3%B3wka%20prz%C3%B3w.jpeg"
+                alt="JuniorJob Business Card - Front"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 holo-shimmer pointer-events-none opacity-40" />
+              <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10" />
+              {/* Corner accents */}
+              <div className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-blue-400/30 rounded-tl-lg" />
+              <div className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-blue-400/30 rounded-tr-lg" />
+              <div className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-blue-400/30 rounded-bl-lg" />
+              <div className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-blue-400/30 rounded-br-lg" />
+            </div>
+          </div>
+          {/* Back */}
+          <div
+            className="card-face absolute inset-0 rounded-2xl overflow-hidden glow-border"
+            style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}
+          >
+            <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-purple-500/40 via-transparent to-blue-500/40 p-[1px]">
+              <div className="w-full h-full rounded-2xl bg-zinc-950" />
+            </div>
+            <div className="relative w-full h-full rounded-2xl overflow-hidden scan-line">
+              <img
+                src="/wizyt%C3%B3wka%20ty%C5%82.jpeg"
+                alt="JuniorJob Business Card - Back"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 holo-shimmer pointer-events-none opacity-40" />
+              <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10" />
+              <div className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-purple-400/30 rounded-tl-lg" />
+              <div className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-purple-400/30 rounded-tr-lg" />
+              <div className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-purple-400/30 rounded-bl-lg" />
+              <div className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-purple-400/30 rounded-br-lg" />
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={isInView ? { opacity: 1 } : {}}
+        transition={{ delay: 0.6 }}
+        className="text-zinc-700 text-[11px] mt-8 tracking-[0.2em] uppercase"
+      >
+        3D Interactive Flip • Click
+      </motion.p>
+    </motion.div>
+  );
+};
+
 const About = ({ lang }: { lang: Language }) => {
   const t = translations[lang].about;
   const u = translations[lang].ui;
@@ -428,7 +516,7 @@ const About = ({ lang }: { lang: Language }) => {
                 className="rounded-[3rem] overflow-hidden aspect-[4/5] relative z-10 shadow-2xl"
               >
                 <img 
-                  src="/project-2.jpeg" 
+                  src="/HST.jpeg" 
                   alt="Precision Engineering" 
                   className="w-full h-full object-cover"
                 />
@@ -537,6 +625,16 @@ const About = ({ lang }: { lang: Language }) => {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Business Card 3D Flip */}
+      <section className="py-32 bg-black relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px]" />
+        </div>
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <BusinessCardFlip />
         </div>
       </section>
 
@@ -906,38 +1004,47 @@ const Portfolio = ({ lang }: { lang: Language }) => {
       '/projekt%20%20okna%201.jpeg',
       '/projekt%20%20okna%2011.jpeg',
       '/projekt%20%20okna%20111.jpeg',
-      '/project-1.jpeg',
-      '/projekt%2033.jpeg',
-      '/projekt%20111.jpeg',
+      '/projekt%20okna%20111.jpeg',
+      '/projekt%20okna%201111.jpeg',
+      '/projekt%20okna%2011111.jpeg',
+      '/projekt%20okna11111.jpeg',
     ],
     doors: [
-      '/projekt%201.jpeg',
-      '/projekt%2011.jpeg',
-      '/projekt%203.jpeg',
+      '/drzwi1.jpeg',
+      '/drzwi2.jpeg',
+      '/drzwi3.jpeg',
+      '/drzwi4.jpeg',
+      '/drzwi5.jpeg',
+      '/drzwi6.jpeg',
     ],
     hst: [
-      '/project-2.jpeg',
-      '/projekt%2022.jpeg',
+      '/HST.jpeg',
     ],
     roof: [
-      '/project-4.jpeg',
-      '/projekt%204.jpeg',
-      '/projekt%20444.jpeg',
-      '/projekt%204444.jpeg',
+      '/Okna%20dachowe.jpeg',
+      '/Okna%20dachowe1.jpeg',
+      '/Okna%20dachowe2.jpeg',
+      '/Okna%20dachowe3.jpeg',
+      '/Okna%20dachowe4.jpeg',
+      '/Okna%20dachowe5.jpeg',
+      '/Okna%20dachowe55.jpeg',
+      '/Okna%20dachowe555.jpeg',
     ],
     cladding: [
-      '/project-3.jpeg',
-      '/projekt%20alsmer.jpeg',
-      '/projekt%20alsmer1.jpeg',
-      '/projekt%20alsmer2.jpeg',
-      '/projekt%20alsmer1.4.jpeg',
-      '/projekt%2044.jpeg',
+      '/elewacje.jpeg',
+      '/elewacje1.jpeg',
+      '/elewacje2.jpeg',
+      '/elewacje3.jpeg',
+      '/elewacje4.jpeg',
+      '/elewacje5.jpeg',
+      '/elewacje6.jpeg',
+      '/elewacje7.jpeg',
+      '/elewacie%2077.jpeg',
+      '/elewacje8.jpeg',
     ],
     repair: [
       '/projekt%20%20reperacje%20w%20drewnie%201.jpeg',
       '/projekt%20%20reperacje%20w%20drewnie%2011.jpeg',
-      '/projekt%201111.jpeg',
-      '/projekt%2011111.jpeg',
     ],
   };
 
@@ -1134,6 +1241,167 @@ const Testimonials = ({ lang }: { lang: Language }) => {
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+};
+
+// --- 3D Business Card Showcase ---
+const BusinessCardShowcase = () => {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [activeCard, setActiveCard] = useState<number | null>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { once: true, margin: "-50px" });
+
+  const handleMouseMove = (e: React.MouseEvent, index: number) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 30;
+    const y = ((e.clientY - rect.top) / rect.height - 0.5) * -30;
+    setMousePos({ x, y });
+    setActiveCard(index);
+  };
+
+  const handleMouseLeave = () => {
+    setMousePos({ x: 0, y: 0 });
+    setActiveCard(null);
+  };
+
+  const cards = [
+    { src: '/wizyt%C3%B3wka%20prz%C3%B3w.jpeg', label: 'Front' },
+    { src: '/wizyt%C3%B3wka%20ty%C5%82.jpeg', label: 'Back' },
+  ];
+
+  return (
+    <section ref={containerRef} className="relative py-32 bg-black overflow-hidden">
+      {/* Background ambient effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-600/8 rounded-full blur-[100px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[150px]" />
+        {/* Grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+          backgroundSize: '50px 50px'
+        }} />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        {/* Section Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center mb-20"
+        >
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={isInView ? { scale: 1, opacity: 1 } : {}}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-blue-600/10 border border-blue-500/20 mb-8"
+          >
+            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+            <span className="text-blue-400 text-xs font-bold uppercase tracking-[0.2em]">Business Card</span>
+          </motion.div>
+          <h2 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-white">
+              JuniorJob
+            </span>{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-600">
+              Onderhoud
+            </span>
+          </h2>
+          <p className="text-zinc-500 text-lg max-w-md mx-auto">
+            Premium kwaliteit • Vakmanschap • Innovatie
+          </p>
+        </motion.div>
+
+        {/* Cards Grid */}
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-24">
+          {cards.map((card, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 80, rotateX: 15 }}
+              animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
+              transition={{ duration: 1, delay: i * 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="perspective-container"
+            >
+              <div
+                onMouseMove={(e) => handleMouseMove(e, i)}
+                onMouseLeave={handleMouseLeave}
+                className="relative group cursor-pointer card-reflection"
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                {/* Outer glow ring */}
+                <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-blue-600/20 via-purple-500/10 to-blue-600/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                
+                {/* Main Card Container */}
+                <motion.div
+                  animate={{
+                    rotateX: activeCard === i ? mousePos.y : 0,
+                    rotateY: activeCard === i ? mousePos.x : 0,
+                    scale: activeCard === i ? 1.05 : 1,
+                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="relative w-[380px] sm:w-[480px] md:w-[520px] aspect-[16/9] rounded-2xl glow-border"
+                  style={{ transformStyle: 'preserve-3d' }}
+                >
+                  {/* Card Frame */}
+                  <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-br from-blue-500/50 via-white/10 to-blue-600/50 p-[1px]">
+                    <div className="w-full h-full rounded-2xl bg-zinc-950" />
+                  </div>
+
+                  {/* Image */}
+                  <div className="relative w-full h-full rounded-2xl overflow-hidden scan-line">
+                    <img
+                      src={card.src}
+                      alt={`JuniorJob Onderhoud - ${card.label}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                    
+                    {/* Holographic overlay */}
+                    <div className="absolute inset-0 holo-shimmer pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    {/* Edge highlights */}
+                    <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 group-hover:ring-blue-400/30 transition-all duration-500" />
+                    
+                    {/* Corner accents */}
+                    <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-blue-400/40 rounded-tl-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-blue-400/40 rounded-tr-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-blue-400/40 rounded-bl-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-blue-400/40 rounded-br-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  </div>
+
+                  {/* 3D depth shadow */}
+                  <div
+                    className="absolute -z-10 inset-4 rounded-2xl bg-blue-600/20 blur-2xl transition-all duration-500"
+                    style={{
+                      transform: activeCard === i
+                        ? `translateX(${mousePos.x * -0.5}px) translateY(${mousePos.y * -0.5}px) translateZ(-50px)`
+                        : 'translateZ(-50px)',
+                    }}
+                  />
+                </motion.div>
+
+                {/* Label badge */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ delay: 0.8 + i * 0.3 }}
+                  className="mt-6 flex items-center justify-center gap-3"
+                >
+                  <div className="h-px w-8 bg-gradient-to-r from-transparent to-blue-500/50" />
+                  <span className="text-xs font-bold uppercase tracking-[0.25em] text-zinc-500 group-hover:text-blue-400 transition-colors duration-300">
+                    {card.label}
+                  </span>
+                  <div className="h-px w-8 bg-gradient-to-l from-transparent to-blue-500/50" />
+                </motion.div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+
       </div>
     </section>
   );
@@ -1415,7 +1683,7 @@ export default function App() {
             <Route path="/about" element={<About lang={lang} />} />
             <Route path="/services" element={<Services lang={lang} />} />
             <Route path="/portfolio" element={<Portfolio lang={lang} />} />
-            <Route path="/contact" element={<Contact lang={lang} />} />
+            <Route path="/contact" element={<><BusinessCardShowcase /><Contact lang={lang} /></>} />
             <Route path="*" element={<NotFound lang={lang} />} />
           </Routes>
         </main>

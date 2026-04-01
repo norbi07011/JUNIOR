@@ -218,21 +218,21 @@ export const translations: Record<Language, Translation> = {
           title: 'Premium Kozijnen',
           description: 'Onze ramen combineren esthetiek met de hoogste isolatiewaarden. Wij werken met profielen die uw woning transformeren en uw energierekening verlagen.',
           features: ['HR+++ Glas standaard', 'Inbraakwerend beslag', 'Diverse kleurprofielen', 'Perfecte geluidsisolatie'],
-          image: '/project-1.jpeg',
+          image: '/projekt%20%20okna%201.jpeg',
           stats: [{ label: 'Isolatie', value: 'U-waarde 0.8' }, { label: 'Garantie', value: '15 Jaar' }]
         },
         {
           title: 'HST Schuifsystemen',
           description: 'Breng buiten naar binnen met onze Hebe-Schiebe-Tür systemen. Ontworpen voor maximale glasoppervlakken en moeiteloze bediening.',
           features: ['Drempelloze overgang', 'Tot 6 meter breedte', 'Soft-close technologie', 'Extreem windbestendig'],
-          image: '/project-2.jpeg',
+          image: '/HST.jpeg',
           stats: [{ label: 'Breedte', value: 'Tot 6m' }, { label: 'Gewicht', value: '400kg/vleugel' }]
         },
         {
           title: 'Keralit Gevelbekleding',
           description: 'De ultieme oplossing voor een onderhoudsvrije gevel. Keralit biedt de look van hout met de duurzaamheid van hoogwaardig kunststof.',
           features: ['Nooit meer schilderen', 'Kleurvast & UV-bestendig', 'Onzichtbare montage', 'Milieuvriendelijk'],
-          image: '/project-3.jpeg',
+          image: '/elewacje.jpeg',
           stats: [{ label: 'Levensduur', value: '30+ Jaar' }, { label: 'Onderhoud', value: 'Minimaal' }]
         }
       ],
@@ -428,21 +428,21 @@ export const translations: Record<Language, Translation> = {
           title: 'Premium Windows',
           description: 'Our windows combine aesthetics with the highest insulation values. We work with profiles that transform your home and lower your energy bills.',
           features: ['HR+++ Glass standard', 'Burglary-resistant hardware', 'Various color profiles', 'Perfect sound insulation'],
-          image: '/project-1.jpeg',
+          image: '/projekt%20%20okna%201.jpeg',
           stats: [{ label: 'Insulation', value: 'U-value 0.8' }, { label: 'Warranty', value: '15 Years' }]
         },
         {
           title: 'HST Sliding Systems',
           description: 'Bring the outside in with our Hebe-Schiebe-Tür systems. Designed for maximum glass surfaces and effortless operation.',
           features: ['Threshold-less transition', 'Up to 6 meters wide', 'Soft-close technology', 'Extremely wind resistant'],
-          image: '/project-2.jpeg',
+          image: '/HST.jpeg',
           stats: [{ label: 'Width', value: 'Up to 6m' }, { label: 'Weight', value: '400kg/wing' }]
         },
         {
           title: 'Keralit Cladding',
           description: 'The ultimate solution for a maintenance-free facade. Keralit offers the look of wood with the durability of high-quality plastic.',
           features: ['Never paint again', 'Colorfast & UV resistant', 'Invisible installation', 'Environmentally friendly'],
-          image: '/project-3.jpeg',
+          image: '/elewacje.jpeg',
           stats: [{ label: 'Lifespan', value: '30+ Years' }, { label: 'Maintenance', value: 'Minimal' }]
         }
       ],
@@ -638,21 +638,21 @@ export const translations: Record<Language, Translation> = {
           title: 'Okna Premium',
           description: 'Nasze okna łączą estetykę z najwyższymi parametrami izolacyjnymi. Pracujemy na profilach, które odmienią Twój dom i obniżą rachunki za energię.',
           features: ['Szklenie HR+++ w standardzie', 'Okucia antywłamaniowe', 'Bogata paleta kolorów', 'Doskonała izolacja akustyczna'],
-          image: '/project-1.jpeg',
+          image: '/projekt%20%20okna%201.jpeg',
           stats: [{ label: 'Izolacja', value: 'U-value 0.8' }, { label: 'Gwarancja', value: '15 Lat' }]
         },
         {
           title: 'Systemy HST',
           description: 'Wprowadź ogród do wnętrza dzięki naszym systemom Hebe-Schiebe-Tür. Zaprojektowane dla maksymalnych przeszkleń i lekkiej obsługi.',
           features: ['Próg zlicowany z podłogą', 'Szerokość do 6 metrów', 'Technologia Soft-close', 'Ekstremalna odporność na wiatr'],
-          image: '/project-2.jpeg',
+          image: '/HST.jpeg',
           stats: [{ label: 'Szerokość', value: 'Do 6m' }, { label: 'Waga', value: '400kg/skrzydło' }]
         },
         {
           title: 'Elewacje Keralit',
           description: 'Ostateczne rozwiązanie dla bezobsługowej elewacji. Keralit oferuje wygląd drewna przy trwałości wysokiej jakości tworzywa.',
           features: ['Nigdy więcej malowania', 'Trwałość koloru & UV', 'Niewidoczny montaż', 'Przyjazne dla środowiska'],
-          image: '/project-3.jpeg',
+          image: '/elewacje.jpeg',
           stats: [{ label: 'Żywotność', value: '30+ Lat' }, { label: 'Konserwacja', value: 'Minimalna' }]
         }
       ],
