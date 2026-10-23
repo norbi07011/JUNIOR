@@ -2,148 +2,139 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Archivo", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --bg: #06070a;
+  --bg-2: #0b0d12;
+  --panel: #10131a;
+  --line: rgba(255, 255, 255, 0.08);
+  --steel: #c9ced6;
+  --steel-dim: #8b929d;
+  --blue: #2563eb;
+  --blue-bright: #3b82f6;
+  --blue-glow: rgba(37, 99, 235, 0.35);
 }
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
-  
+  html { background: var(--bg); }
   body {
-    @apply bg-black text-white antialiased;
+    @apply text-white antialiased;
+    background: var(--bg);
+    font-feature-settings: "ss01", "cv11";
   }
+  ::selection { background: var(--blue); color: #fff; }
+  :focus-visible { outline: 2px solid var(--blue-bright); outline-offset: 3px; border-radius: 6px; }
 }
 
-@layer components {
-  .section-padding {
-    @apply py-24 px-6;
-  }
+@utility font-display {
+  font-family: var(--font-display);
+  font-stretch: 118%;
+  letter-spacing: -0.02em;
 }
 
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+/* Brushed-steel gradient text, matching the logo */
+@utility text-steel-gradient {
+  background: linear-gradient(180deg, #ffffff 0%, #d7dbe1 38%, #8b929d 52%, #e6e9ee 70%, #9aa1ab 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-@keyframes marquee-reverse {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
+@utility text-blue-gradient {
+  background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 45%, #1d4ed8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}
-
-.animate-marquee-reverse {
-  animation: marquee-reverse 30s linear infinite;
-}
-
-/* === 3D Business Card Showcase === */
-.perspective-container {
-  perspective: 1800px;
-  perspective-origin: center;
-}
-
-.card-3d {
-  transform-style: preserve-3d;
-  transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.card-3d:hover {
-  transform: rotateY(180deg);
-}
-
-.card-face {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.card-back {
-  transform: rotateY(180deg);
-}
-
-/* Holographic shimmer overlay */
-@keyframes holoShimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.holo-shimmer {
-  background: linear-gradient(
-    105deg,
-    transparent 20%,
-    rgba(100, 150, 255, 0.15) 30%,
-    rgba(100, 200, 255, 0.25) 40%,
-    rgba(150, 100, 255, 0.15) 50%,
-    transparent 60%
-  );
-  background-size: 200% 100%;
-  animation: holoShimmer 4s ease-in-out infinite;
-}
-
-/* Glowing border pulse */
-@keyframes glowPulse {
-  0%, 100% {
-    box-shadow:
-      0 0 20px rgba(59, 130, 246, 0.3),
-      0 0 60px rgba(59, 130, 246, 0.1),
-      inset 0 0 20px rgba(59, 130, 246, 0.05);
-  }
-  50% {
-    box-shadow:
-      0 0 30px rgba(59, 130, 246, 0.5),
-      0 0 80px rgba(59, 130, 246, 0.2),
-      inset 0 0 30px rgba(59, 130, 246, 0.1);
-  }
-}
-
-.glow-border {
-  animation: glowPulse 3s ease-in-out infinite;
-}
-
-/* Float animation */
-@keyframes floatCard {
-  0%, 100% { transform: translateY(0px) rotateX(2deg); }
-  50% { transform: translateY(-12px) rotateX(-2deg); }
-}
-
-.float-card {
-  animation: floatCard 6s ease-in-out infinite;
-  transform-style: preserve-3d;
-}
-
-/* Ambient particle glow */
-@keyframes particleFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
-  25% { transform: translate(30px, -20px) scale(1.2); opacity: 0.8; }
-  50% { transform: translate(-20px, -40px) scale(0.8); opacity: 0.3; }
-  75% { transform: translate(15px, -10px) scale(1.1); opacity: 0.6; }
-}
-
-/* Scan line effect */
-@keyframes scanLine {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(200%); }
-}
-
-.scan-line::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 30%;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    rgba(59, 130, 246, 0.08),
-    transparent
-  );
-  animation: scanLine 4s ease-in-out infinite;
+/* Fine film grain over everything */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  z-index: 90;
   pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 1.2s steps(6) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -1%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
 }
 
-/* Reflection effect */
-.card-reflection {
-  -webkit-box-reflect: below 8px linear-gradient(transparent 60%, rgba(255,255,255,0.06));
+/* Volumetric spotlight cones */
+.spot-beam {
+  position: absolute;
+  top: -10%;
+  width: 46%;
+  height: 130%;
+  background: linear-gradient(180deg, rgba(160, 190, 255, 0.28), rgba(59, 130, 246, 0.08) 55%, transparent 85%);
+  filter: blur(18px);
+  mix-blend-mode: screen;
+  clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+  transform-origin: 50% 0;
+  animation: sway 9s ease-in-out infinite;
+}
+.spot-beam-left { left: 2%; transform: rotate(-18deg); }
+.spot-beam-right { right: 2%; transform: rotate(18deg); animation-delay: -4.5s; }
+@keyframes sway {
+  0%, 100% { rotate: -3deg; opacity: 0.85; }
+  50% { rotate: 3deg; opacity: 1; }
+}
+
+/* Screen shake (impact) */
+.screen-shake { animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes shake {
+  10%, 90% { transform: translate3d(-2px, 1px, 0); }
+  20%, 80% { transform: translate3d(5px, -2px, 0); }
+  30%, 50%, 70% { transform: translate3d(-9px, 3px, 0) rotate(-0.4deg); }
+  40%, 60% { transform: translate3d(9px, -3px, 0) rotate(0.4deg); }
+}
+
+/* Page transitions (View Transitions API) */
+::view-transition-old(root) {
+  animation: 0.45s cubic-bezier(.7,0,.84,0) both vt-out;
+}
+::view-transition-new(root) {
+  animation: 0.7s cubic-bezier(.16,1,.3,1) 0.1s both vt-in;
+}
+@keyframes vt-out {
+  to { opacity: 0; transform: scale(0.96); filter: blur(8px); }
+}
+@keyframes vt-in {
+  from { opacity: 0; clip-path: inset(100% 0 0 0); transform: translateY(40px); }
+  to { opacity: 1; clip-path: inset(0 0 0 0); transform: none; }
+}
+
+/* Business card holographic sweep */
+.holo-shimmer {
+  background: linear-gradient(105deg, transparent 20%, rgba(100,150,255,.15) 30%, rgba(100,200,255,.25) 40%, rgba(150,100,255,.15) 50%, transparent 60%);
+  background-size: 200% 100%;
+  animation: holo 4s ease-in-out infinite;
+}
+@keyframes holo { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+/* FAQ accordion: animate height of <details> content */
+details::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition: block-size .5s cubic-bezier(.16,1,.3,1), content-visibility .5s allow-discrete;
+}
+details[open]::details-content { block-size: auto; }
+:root { interpolate-size: allow-keywords; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .grain::after { display: none; }
 }

@@ -218,14 +218,14 @@ export const translations: Record<Language, Translation> = {
           title: 'Premium Kozijnen',
           description: 'Onze ramen combineren esthetiek met de hoogste isolatiewaarden. Wij werken met profielen die uw woning transformeren en uw energierekening verlagen.',
           features: ['HR+++ Glas standaard', 'Inbraakwerend beslag', 'Diverse kleurprofielen', 'Perfecte geluidsisolatie'],
-          image: '/projekt%20%20okna%201.jpeg',
+          image: '/projekt-okna-1.jpeg',
           stats: [{ label: 'Isolatie', value: 'U-waarde 0.8' }, { label: 'Garantie', value: '15 Jaar' }]
         },
         {
           title: 'HST Schuifsystemen',
           description: 'Breng buiten naar binnen met onze Hebe-Schiebe-Tür systemen. Ontworpen voor maximale glasoppervlakken en moeiteloze bediening.',
           features: ['Drempelloze overgang', 'Tot 6 meter breedte', 'Soft-close technologie', 'Extreem windbestendig'],
-          image: '/HST.jpeg',
+          image: '/hst.jpeg',
           stats: [{ label: 'Breedte', value: 'Tot 6m' }, { label: 'Gewicht', value: '400kg/vleugel' }]
         },
         {
@@ -428,14 +428,14 @@ export const translations: Record<Language, Translation> = {
           title: 'Premium Windows',
           description: 'Our windows combine aesthetics with the highest insulation values. We work with profiles that transform your home and lower your energy bills.',
           features: ['HR+++ Glass standard', 'Burglary-resistant hardware', 'Various color profiles', 'Perfect sound insulation'],
-          image: '/projekt%20%20okna%201.jpeg',
+          image: '/projekt-okna-1.jpeg',
           stats: [{ label: 'Insulation', value: 'U-value 0.8' }, { label: 'Warranty', value: '15 Years' }]
         },
         {
           title: 'HST Sliding Systems',
           description: 'Bring the outside in with our Hebe-Schiebe-Tür systems. Designed for maximum glass surfaces and effortless operation.',
           features: ['Threshold-less transition', 'Up to 6 meters wide', 'Soft-close technology', 'Extremely wind resistant'],
-          image: '/HST.jpeg',
+          image: '/hst.jpeg',
           stats: [{ label: 'Width', value: 'Up to 6m' }, { label: 'Weight', value: '400kg/wing' }]
         },
         {
@@ -638,14 +638,14 @@ export const translations: Record<Language, Translation> = {
           title: 'Okna Premium',
           description: 'Nasze okna łączą estetykę z najwyższymi parametrami izolacyjnymi. Pracujemy na profilach, które odmienią Twój dom i obniżą rachunki za energię.',
           features: ['Szklenie HR+++ w standardzie', 'Okucia antywłamaniowe', 'Bogata paleta kolorów', 'Doskonała izolacja akustyczna'],
-          image: '/projekt%20%20okna%201.jpeg',
+          image: '/projekt-okna-1.jpeg',
           stats: [{ label: 'Izolacja', value: 'U-value 0.8' }, { label: 'Gwarancja', value: '15 Lat' }]
         },
         {
           title: 'Systemy HST',
           description: 'Wprowadź ogród do wnętrza dzięki naszym systemom Hebe-Schiebe-Tür. Zaprojektowane dla maksymalnych przeszkleń i lekkiej obsługi.',
           features: ['Próg zlicowany z podłogą', 'Szerokość do 6 metrów', 'Technologia Soft-close', 'Ekstremalna odporność na wiatr'],
-          image: '/HST.jpeg',
+          image: '/hst.jpeg',
           stats: [{ label: 'Szerokość', value: 'Do 6m' }, { label: 'Waga', value: '400kg/skrzydło' }]
         },
         {
