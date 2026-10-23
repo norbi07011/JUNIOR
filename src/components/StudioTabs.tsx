@@ -45,7 +45,16 @@ export const STUDIOS: { id: string; tab: Record<Language, string>; poster: strin
       return { factory: createDeurStudio, content: deurContent };
     },
   },
-]
+  {
+    id: 'keralit',
+    tab: { nl: 'Keralit gevel', en: 'Keralit facade', pl: 'Elewacja Keralit' },
+    poster: '/elewacje.jpeg',
+    load: async () => {
+      const [{ createKeralitStudio }, { keralitContent }] = await Promise.all([import('../fx/studio/keralit'), import('../fx/studio/content/keralit')]);
+      return { factory: createKeralitStudio, content: keralitContent };
+    },
+  },
+];
 
 const StudioView = lazy(() => import('../fx/studio/StudioView').then((m) => ({ default: m.StudioView })));
 
