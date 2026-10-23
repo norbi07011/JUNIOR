@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Language } from '../../translations';
 import { asset } from '../core';
-import { createKozijnStudio } from './kozijnStudio';
 import { studioText } from './studioText';
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 import './studio.css';
@@ -19,15 +18,28 @@ type Api = {
   zoom(f: number): void; reset(): void; destroy(): void;
 };
 
-export function MontageStudio({ lang }: { lang: Language }) {
-  const tx = studioText[lang];
+export type StudioContent = {
+  kicker: string;
+  title: string;
+  intro: string;
+  chapters: [string, string][];
+  labels: Record<string, string>;
+};
+
+type Factory = (host: HTMLElement, opts: Record<string, unknown>) => Api | null;
+
+/** Generic studio shell: canvas, toolbar, chapter rail. `factory` builds the scene. */
+export function StudioView({ lang, factory, content, poster }: { lang: Language; factory: Factory; content?: StudioContent; poster?: string }) {
+  const ui = studioText[lang];
+  const tx = { ...ui, ...(content ?? {}) };
+  const n = tx.chapters.length;
   const host = useRef<HTMLDivElement>(null);
   const tags = useRef<HTMLDivElement>(null);
   const rail = useRef<HTMLOListElement>(null);
   const api = useRef<Api | null>(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [chapter, setChapter] = useState(9);
+  const [chapter, setChapter] = useState(n - 1);
   const [playing, setPlaying] = useState(false);
   const [exploded, setExploded] = useState(false);
   const [vn, setVn] = useState<'' | 'voor' | 'na'>('');
@@ -37,10 +49,10 @@ export function MontageStudio({ lang }: { lang: Language }) {
     if (!host.current || !tags.current) return;
     let studio: Api | null = null;
     try {
-      studio = createKozijnStudio(host.current, {
+      studio = factory(host.current, {
         tags: tags.current,
         reduce: reducedMotion(),
-        labels: studioText[lang].labels,
+        labels: tx.labels,
         onReady: () => setReady(true),
         onChapter: (ch: number) => setChapter(ch),
         onFrame: (ch: number, within: number, t: number) => {
@@ -82,7 +94,7 @@ export function MontageStudio({ lang }: { lang: Language }) {
       api.current = null;
       setReady(false);
     };
-  }, [lang]);
+  }, [lang, factory]);
 
   // keep the active chapter centred in the rail on small screens
   useEffect(() => {
@@ -131,12 +143,12 @@ export function MontageStudio({ lang }: { lang: Language }) {
     sync();
   };
 
-  const [title, text] = tx.chapters[chapter];
+  const [title, text] = tx.chapters[Math.min(chapter, n - 1)];
 
   return (
     <figure className="bb-studio" aria-label={tx.aria}>
       <div className="st-canvas" ref={host} onPointerDown={() => setHintOff(true)} data-lenis-prevent-touch>
-        {!ready && <img className="poster" src={asset('/projekt-okna-1.jpeg')} alt="" />}
+        {!ready && <img className="poster" src={poster ?? asset('/projekt-okna-1.jpeg')} alt="" />}
         <div className="w3d-tags" ref={tags} aria-hidden="true" />
         {!failed && (
           <>
@@ -166,7 +178,7 @@ export function MontageStudio({ lang }: { lang: Language }) {
       </div>
 
       <div className="st-info swap" key={`${lang}-${chapter}`} aria-live="polite">
-        <span className="st-num">{String(chapter + 1).padStart(2, '0')} / 10</span>
+        <span className="st-num">{String(chapter + 1).padStart(2, '0')} / {String(n).padStart(2, '0')}</span>
         <h3>{title}</h3>
         <p>{text}</p>
       </div>
@@ -191,4 +203,11 @@ export function MontageStudio({ lang }: { lang: Language }) {
       )}
     </figure>
   );
+}
+
+import { createKozijnStudio } from './kozijnStudio';
+
+/** The original window-frame replacement studio. */
+export function MontageStudio({ lang }: { lang: Language }) {
+  return <StudioView lang={lang} factory={createKozijnStudio as Factory} />;
 }

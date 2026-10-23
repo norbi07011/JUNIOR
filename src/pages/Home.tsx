@@ -17,7 +17,7 @@ import { CTASection, Eyebrow, GhostButton, PrimaryButton, ScrubSteps } from '../
 import { SloganMarquee } from '../components/Layout';
 import { studioText } from '../fx/studio/studioText';
 
-const MontageStudio = lazy(() => import('../fx/studio/MontageStudio').then((m) => ({ default: m.MontageStudio })));
+const MontageStudio = lazy(() => import('../fx/studio/StudioView').then((m) => ({ default: m.MontageStudio })));
 
 export const useMediaQuery = (q: string) => {
   const [m, setM] = useState(() => typeof window !== 'undefined' && window.matchMedia(q).matches);

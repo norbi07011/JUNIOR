@@ -10,6 +10,14 @@ import { flyToQuote, useQuote } from '../fx/nav';
 import { serviceImages } from '../data';
 import { CTASection, Eyebrow, ScrubSteps } from '../components/Shared';
 import { useMediaQuery } from './Home';
+import { StudioTabs } from '../components/StudioTabs';
+
+const STUDIO_TITLE = { nl: 'Bekijk elke montage in 3D', en: 'See every installation in 3D', pl: 'Zobacz każdy montaż w 3D' };
+const STUDIO_INTRO = {
+  nl: 'Kies een dienst en volg stap voor stap hoe wij monteren. Draai het model, bekijk het opengewerkt of vergelijk voor en na.',
+  en: 'Pick a service and follow our installation step by step. Rotate the model, open the cutaway or compare before and after.',
+  pl: 'Wybierz usługę i śledź montaż krok po kroku. Obracaj model, zobacz przekrój albo porównaj przed i po.',
+};
 
 /* ------------------------------------------------------------------ */
 /* Scrollytelling — pinned 3D window spins & opens, copy changes       */
@@ -172,6 +180,8 @@ export const Services = ({ lang }: { lang: Language }) => {
       </section>
 
       <Story lang={lang} />
+
+      <StudioTabs lang={lang} title={STUDIO_TITLE} intro={STUDIO_INTRO} />
 
       <section className="relative py-28 md:py-40">
         <div className="mx-auto max-w-7xl px-6">
