@@ -47,11 +47,11 @@ export function createKozijnStudio(host: any, opts: any): any {
   function canvas(w,h){ var c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
   var brickC = (function(){
     var S = 1024, cols = 8, rows = 16, bw = S/cols, bh = S/rows, m = 6, c = canvas(S,S), g = c.getContext('2d'), b = canvas(S,S), gb = b.getContext('2d');
-    g.fillStyle = '#8b857a'; g.fillRect(0,0,S,S); gb.fillStyle = '#2a2a2a'; gb.fillRect(0,0,S,S);
+    g.fillStyle = '#9a9690'; g.fillRect(0,0,S,S); gb.fillStyle = '#2a2a2a'; gb.fillRect(0,0,S,S);
     for(var i=0;i<14000;i++){ g.fillStyle = Math.random()>.5 ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.09)'; g.fillRect(Math.random()*S, Math.random()*S, 2, 2); }
     for(var r=0;r<rows;r++){ var off = (r%2) ? bw/2 : 0;
       for(var k=-1;k<=cols;k++){
-        var x = k*bw + off + m/2, y = r*bh + m/2, w = bw - m, h = bh - m, hue = rand(6,20), sat = rand(34,52), li = rand(21,33);
+        var x = k*bw + off + m/2, y = r*bh + m/2, w = bw - m, h = bh - m, hue = rand(205,228), sat = rand(4,11), li = rand(22,37);
         g.fillStyle = 'hsl('+hue+','+sat+'%,'+li+'%)'; g.fillRect(x,y,w,h);
         for(var s=0;s<90;s++){ g.fillStyle = 'hsla('+(hue+rand(-4,4))+','+sat+'%,'+(li+rand(-9,9))+'%,.55)'; g.fillRect(x+Math.random()*w, y+Math.random()*h, rand(1,4), rand(1,2.5)); }
         var gr = g.createLinearGradient(0,y,0,y+h); gr.addColorStop(0,'rgba(255,240,220,.08)'); gr.addColorStop(1,'rgba(0,0,0,.22)'); g.fillStyle = gr; g.fillRect(x,y,w,h);
@@ -112,8 +112,8 @@ export function createKozijnStudio(host: any, opts: any): any {
   });
   // rollaag boven de sparing
   var roll = (function(){
-    var c = canvas(1440,216), g = c.getContext('2d'); g.fillStyle = '#857f74'; g.fillRect(0,0,1440,216);
-    for(var i=0;i<19;i++){ var bw = 1440/19, hue = rand(5,16), sat = rand(30,45), li = rand(18,27); g.fillStyle = 'hsl('+hue+','+sat+'%,'+li+'%)'; g.fillRect(i*bw+5,5,bw-10,206); for(var s=0;s<120;s++){ g.fillStyle = 'hsla('+hue+','+sat+'%,'+(li+rand(-8,8))+'%,.5)'; g.fillRect(i*bw+5+Math.random()*(bw-10), 5+Math.random()*206, rand(1,3), rand(1,3)); } }
+    var c = canvas(1440,216), g = c.getContext('2d'); g.fillStyle = '#9a9690'; g.fillRect(0,0,1440,216);
+    for(var i=0;i<19;i++){ var bw = 1440/19, hue = rand(205,228), sat = rand(4,10), li = rand(18,30); g.fillStyle = 'hsl('+hue+','+sat+'%,'+li+'%)'; g.fillRect(i*bw+5,5,bw-10,206); for(var s=0;s<120;s++){ g.fillStyle = 'hsla('+hue+','+sat+'%,'+(li+rand(-8,8))+'%,.5)'; g.fillRect(i*bw+5+Math.random()*(bw-10), 5+Math.random()*206, rand(1,3), rand(1,3)); } }
     var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = maxAniso;
     var m = new T.Mesh(new T.PlaneGeometry(1.44, 0.216), new T.MeshStandardMaterial({map:t, roughness:.92, envMapIntensity:.45}));
     m.position.set(0, OH/2 + 0.108, 0.002); m.receiveShadow = true; wall.add(m); return m;
@@ -142,8 +142,8 @@ export function createKozijnStudio(host: any, opts: any): any {
   var V = function(x,y,z){ return new T.Vector3(x,y,z); };
 
   /* ---------- materialen ---------- */
-  var antra = new T.MeshStandardMaterial({color:0x363b40, roughness:.42, metalness:.08, envMapIntensity:1});
-  var antraLight = new T.MeshStandardMaterial({color:0x4a5056, roughness:.45, envMapIntensity:.9});
+  var antra = new T.MeshStandardMaterial({color:new T.Color(0xece6d6).convertSRGBToLinear(), roughness:.38, metalness:.02, envMapIntensity:1});
+  var antraLight = new T.MeshStandardMaterial({color:new T.Color(0xdcd5c3).convertSRGBToLinear(), roughness:.42, envMapIntensity:.9});
   var rubber = new T.MeshStandardMaterial({color:0x151617, roughness:.8});
   var steel = new T.MeshStandardMaterial({color:0xc9cdd1, metalness:.9, roughness:.28});
   var oldWood = new T.MeshStandardMaterial({map:tex(oldPaintC, 1, 1), roughness:.75, envMapIntensity:.6});
@@ -162,7 +162,7 @@ export function createKozijnStudio(host: any, opts: any): any {
   comp(oldSash, V(0,0,-0.06), V(0,0,0.25), 'Oud raam met enkel glas', V(0.2,0.3,0.04));
 
   /* ---------- meten ---------- */
-  var laserMat = new T.MeshBasicMaterial({color:0xff3326, transparent:true});
+  var laserMat = new T.MeshBasicMaterial({color:0x3b82f6, transparent:true});
   function line(len){ var g = new T.BoxGeometry(len, 0.005, 0.005); g.translate(len/2, 0, 0); return new T.Mesh(g, laserMat); }
   var laser = new T.Group(); scene.add(laser);
   var lzW = line(OW); lzW.position.set(-OW/2, -0.2, 0.04); laser.add(lzW);
@@ -361,19 +361,19 @@ export function createKozijnStudio(host: any, opts: any): any {
 
   /* ---------- camera ---------- */
   var KEYS = [ // t, hoek (0 = recht van buiten, PI = binnen), afstand, camera y, kijkpunt x,y,z
-    [0.0, 0.5, 6.6, 0.9, 0, 0.05, -0.15],
-    [0.9, 0.32, 5.2, 0.5, 0, 0.0, -0.1],
-    [1.9, 0.62, 5.8, 0.7, 0, 0.0, -0.1],
-    [2.8, 0.38, 4.0, 0.15, 0, -0.5, -0.1],
-    [3.9, 0.58, 5.4, 0.6, 0, 0.0, -0.1],
-    [4.9, 0.9, 4.0, 0.35, 0.15, 0.05, -0.1],
-    [5.5, 2.35, 5.2, 0.6, 0, 0.0, -0.2],
-    [6.9, 3.6, 5.4, 0.55, 0, 0.0, -0.2],
-    [7.9, 2.6, 4.6, 0.4, 0, 0.0, -0.2],
-    [8.4, 0.55, 4.8, 0.3, 0, -0.1, -0.1],
-    [8.95, 2.5, 5.2, 0.35, 0, -0.25, -0.2],
-    [9.6, 0.4, 6.2, 0.8, 0, 0.05, -0.15],
-    [10.0, 0.62, 6.6, 0.95, 0, 0.05, -0.15]
+    [0.0, -0.5, 6.6, 0.9, -0.0, 0.05, -0.15],
+    [0.9, -0.32, 5.2, 0.5, -0.0, 0.0, -0.1],
+    [1.9, -0.62, 5.8, 0.7, -0.0, 0.0, -0.1],
+    [2.8, -0.38, 4.0, 0.15, -0.0, -0.5, -0.1],
+    [3.9, -0.58, 5.4, 0.6, -0.0, 0.0, -0.1],
+    [4.9, -0.9, 4.0, 0.35, -0.15, 0.05, -0.1],
+    [5.5, -2.35, 5.2, 0.6, -0.0, 0.0, -0.2],
+    [6.9, -3.6, 5.4, 0.55, -0.0, 0.0, -0.2],
+    [7.9, -2.6, 4.6, 0.4, -0.0, 0.0, -0.2],
+    [8.4, -0.55, 4.8, 0.3, -0.0, -0.1, -0.1],
+    [8.95, -2.5, 5.2, 0.35, -0.0, -0.25, -0.2],
+    [9.6, -0.4, 6.2, 0.8, -0.0, 0.05, -0.15],
+    [10.0, -0.62, 6.6, 0.95, -0.0, 0.05, -0.15]
   ];
   var EXK = [0, 1.0, 7.4, 2.1, 0, -0.1, -0.35]; // opengewerkte weergave
   var user = {yaw:0, pitch:0, zoom:1, tyaw:0, tpitch:0, tzoom:1};
@@ -484,6 +484,7 @@ export function createKozijnStudio(host: any, opts: any): any {
     destroy: function(){ running = false; cancelAnimationFrame(raf); if(ro) ro.disconnect(); renderer.dispose(); renderer.forceContextLoss && renderer.forceContextLoss(); if(cv.parentNode) cv.parentNode.removeChild(cv); opts.tags.innerHTML = ''; },
     seek: function(x, e){ t = x; playing = false; target = null; if(e !== undefined){ ex = exTarget = e; } emit(); draw(0); }
   };
+  host.__studio = api; // handle for automated visual checks
   emit(); draw(0.016);
   if(opts.onReady) opts.onReady();
   return api;
