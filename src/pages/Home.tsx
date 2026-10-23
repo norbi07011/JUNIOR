@@ -17,6 +17,7 @@ import { CTASection, Eyebrow, GhostButton, PrimaryButton, ScrubSteps } from '../
 import { SloganMarquee } from '../components/Layout';
 import { studioText } from '../fx/studio/studioText';
 import { Thermal } from '../components/Thermal';
+import { MontageDay } from '../components/Demos';
 
 const MontageStudio = lazy(() => import('../fx/studio/StudioView').then((m) => ({ default: m.MontageStudio })));
 
@@ -367,6 +368,7 @@ export const Home = ({ lang }: { lang: Language }) => (
     <OrbitServices lang={lang} />
     <Studio lang={lang} />
     <Thermal lang={lang} />
+    <MontageDay lang={lang} />
     <WhyUs lang={lang} />
     <ScrubSteps title={translations[lang].process.title} steps={translations[lang].process.steps} />
     <Testimonials lang={lang} />

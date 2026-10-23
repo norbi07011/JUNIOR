@@ -11,6 +11,8 @@ import { serviceImages } from '../data';
 import { CTASection, Eyebrow, ScrubSteps } from '../components/Shared';
 import { useMediaQuery } from './Home';
 import { StudioTabs } from '../components/StudioTabs';
+import { Configurator } from '../components/Configurator';
+import { ComfortDemos } from '../components/Demos';
 
 const STUDIO_TITLE = { nl: 'Bekijk elke montage in 3D', en: 'See every installation in 3D', pl: 'Zobacz każdy montaż w 3D' };
 const STUDIO_INTRO = {
@@ -182,6 +184,10 @@ export const Services = ({ lang }: { lang: Language }) => {
       <Story lang={lang} />
 
       <StudioTabs lang={lang} title={STUDIO_TITLE} intro={STUDIO_INTRO} />
+
+      <Configurator lang={lang} />
+
+      <ComfortDemos lang={lang} />
 
       <section className="relative py-28 md:py-40">
         <div className="mx-auto max-w-7xl px-6">
