@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import {
   motion, useAnimationFrame, useMotionTemplate, useMotionValue, useReducedMotion,
   useScroll, useSpring, useTransform, MotionValue,
@@ -15,6 +15,9 @@ import { TLink } from '../fx/nav';
 import { serviceImages } from '../data';
 import { CTASection, Eyebrow, GhostButton, PrimaryButton, ScrubSteps } from '../components/Shared';
 import { SloganMarquee } from '../components/Layout';
+import { studioText } from '../fx/studio/studioText';
+
+const MontageStudio = lazy(() => import('../fx/studio/MontageStudio').then((m) => ({ default: m.MontageStudio })));
 
 export const useMediaQuery = (q: string) => {
   const [m, setM] = useState(() => typeof window !== 'undefined' && window.matchMedia(q).matches);
@@ -263,6 +266,31 @@ const OrbitServices = ({ lang }: { lang: Language }) => {
 };
 
 /* ------------------------------------------------------------------ */
+/* Interactive 3D montage studio (Three.js, 10 installation steps)     */
+/* ------------------------------------------------------------------ */
+
+const Studio = ({ lang }: { lang: Language }) => {
+  const tx = studioText[lang];
+  return (
+    <section className="relative py-24 md:py-32">
+      <div className="pointer-events-none absolute left-1/2 top-1/3 h-[50vmin] w-[80vmin] -translate-x-1/2 rounded-full bg-[var(--blue)]/10 blur-[140px]" />
+      <div className="relative mx-auto max-w-7xl px-4 md:px-6">
+        <div className="mb-12 max-w-3xl px-2 md:px-0">
+          <Eyebrow>{tx.kicker}</Eyebrow>
+          <SplitText key={`${lang}-studio`} text={tx.title} className="font-display mt-6 text-4xl font-extrabold leading-[0.95] tracking-tight md:text-7xl" />
+          <Reveal><p className="mt-6 text-lg leading-relaxed text-zinc-400">{tx.intro}</p></Reveal>
+        </div>
+        <Reveal rotate={6}>
+          <Suspense fallback={<div className="aspect-[4/5] overflow-hidden rounded-[28px] border border-white/10 bg-[var(--panel)] md:aspect-video"><img src={asset('/projekt-okna-1.jpeg')} alt="" className="h-full w-full object-cover opacity-50" /></div>}>
+            <MontageStudio lang={lang} />
+          </Suspense>
+        </Reveal>
+      </div>
+    </section>
+  );
+};
+
+/* ------------------------------------------------------------------ */
 
 const WhyUs = ({ lang }: { lang: Language }) => {
   const t = translations[lang].whyUs;
@@ -336,6 +364,7 @@ export const Home = ({ lang }: { lang: Language }) => (
     <Stats lang={lang} />
     <SloganMarquee lang={lang} />
     <OrbitServices lang={lang} />
+    <Studio lang={lang} />
     <WhyUs lang={lang} />
     <ScrubSteps title={translations[lang].process.title} steps={translations[lang].process.steps} />
     <Testimonials lang={lang} />
