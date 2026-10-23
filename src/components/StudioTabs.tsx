@@ -27,6 +27,15 @@ export const STUDIOS: { id: string; tab: Record<Language, string>; poster: strin
       return { factory: createHstStudio, content: hstContent };
     },
   },
+  {
+    id: 'dakraam',
+    tab: { nl: 'Dakramen', en: 'Roof windows', pl: 'Okna dachowe' },
+    poster: '/okna-dachowe.jpeg',
+    load: async () => {
+      const [{ createDakraamStudio }, { dakraamContent }] = await Promise.all([import('../fx/studio/dakraam'), import('../fx/studio/content/dakraam')]);
+      return { factory: createDakraamStudio, content: dakraamContent };
+    },
+  },
 ];
 
 const StudioView = lazy(() => import('../fx/studio/StudioView').then((m) => ({ default: m.StudioView })));

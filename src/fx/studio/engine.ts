@@ -341,6 +341,7 @@ export function createStudio(host: any, opts: any, def: any): any {
     },
     seek: function (x, e) { t = x; playing = false; target = null; if (e !== undefined) { exRef.v = exTarget = e; } emit(); draw(0); },
   };
+  host.__studio = api; // handle for automated visual checks
   emit(); draw(0.016);
   if (opts.onReady) opts.onReady();
   return api;
