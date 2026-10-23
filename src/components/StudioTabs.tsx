@@ -54,6 +54,15 @@ export const STUDIOS: { id: string; tab: Record<Language, string>; poster: strin
       return { factory: createKeralitStudio, content: keralitContent };
     },
   },
+  {
+    id: 'houtrot',
+    tab: { nl: 'Houtrotherstel', en: 'Wood rot repair', pl: 'Naprawa drewna' },
+    poster: '/projekt-reperacje-w-drewnie-1.jpeg',
+    load: async () => {
+      const [{ createHoutrotStudio }, { houtrotContent }] = await Promise.all([import('../fx/studio/houtrot'), import('../fx/studio/content/houtrot')]);
+      return { factory: createHoutrotStudio, content: houtrotContent };
+    },
+  },
 ];
 
 const StudioView = lazy(() => import('../fx/studio/StudioView').then((m) => ({ default: m.StudioView })));
