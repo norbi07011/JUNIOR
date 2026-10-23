@@ -304,7 +304,7 @@ export const MontageDay = ({ lang }: { lang: Language }) => {
                       {st === 'frame' && <rect x={x + 5} y={y + 5} width="50" height="38" fill="#1a1a1a" />}
                       {(st === 'glass' || st === 'done') && <><rect x={x + 5} y={y + 5} width="50" height="38" fill="#6f93b3" /><rect x={x + 5} y={y + 5} width="18" height="38" fill="rgba(255,255,255,.25)" /></>}
                       {st === 'done' && <rect x={x - 1.5} y={y - 1.5} width="63" height="51" fill="none" stroke="#9ca3af" strokeWidth="1.5" />}
-                      {st === 'open' && <motion.circle cx={x + 30} cy={y + 24} r="5" fill="#3b82f6" animate={{ r: [5, 9, 5], opacity: [1, .4, 1] }} transition={{ repeat: Infinity, duration: 1 }} />}
+                      {st === 'open' && <motion.circle cx={x + 30} cy={y + 24} r="5" fill="#3b82f6" style={{ transformBox: 'fill-box', transformOrigin: 'center' }} animate={{ scale: [1, 1.8, 1], opacity: [1, .4, 1] }} transition={{ repeat: Infinity, duration: 1 }} />}
                     </g>
                   );
                 })}
