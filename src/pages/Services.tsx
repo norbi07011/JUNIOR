@@ -12,6 +12,7 @@ import { CTASection, Eyebrow, ScrubSteps } from '../components/Shared';
 
 import { StudioTabs } from '../components/StudioTabs';
 import { Configurator } from '../components/Configurator';
+import { TiltTurn } from '../components/TiltTurn';
 
 const STUDIO_TITLE = { nl: 'De montage in 3D', en: 'The installation in 3D', pl: 'Montaż w 3D' };
 const STUDIO_INTRO = {
@@ -155,6 +156,8 @@ export const Services = ({ lang }: { lang: Language }) => {
       <StudioTabs lang={lang} title={STUDIO_TITLE} intro={STUDIO_INTRO} only={['kozijn']} />
 
       <Configurator lang={lang} />
+
+      <TiltTurn lang={lang} />
 
       <section className="relative py-28 md:py-40">
         <div className="mx-auto max-w-7xl px-6">
