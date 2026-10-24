@@ -1,8 +1,8 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Check, Plus, Ruler } from 'lucide-react';
 import type { Language } from '../translations';
-import { Float, Reveal, SplitText, TiltCard } from '../fx/core';
+import { Reveal, SplitText } from '../fx/core';
 import { flyToQuote, useQuote } from '../fx/nav';
 import { Eyebrow } from './Shared';
 
@@ -28,6 +28,8 @@ const TX: Record<string, L> = {
   added: { nl: 'Toegevoegd aan offerte', en: 'Added to quote', pl: 'Dodano do wyceny' },
   sections: { nl: 'vakken', en: 'sections', pl: 'pola' },
   section: { nl: 'vak', en: 'section', pl: 'pole' },
+  wall: { nl: 'In de gevel', en: 'In the facade', pl: 'W elewacji' },
+  plan: { nl: 'Tekening', en: 'Drawing', pl: 'Rysunek' },
   note: { nl: 'Symbolen volgens bouwtekening: de punt van de driehoek wijst naar de scharnierzijde.', en: 'Drawing symbols: the tip of the triangle points to the hinge side.', pl: 'Symbole jak na rysunku: wierzchołek trójkąta wskazuje stronę zawiasów.' },
 };
 
@@ -59,14 +61,14 @@ const shade = (hex: string, k: number) => {
 };
 
 /** Front elevation of the configured window as SVG (drawing-style symbols + realistic fill). */
-const Elevation = React.forwardRef<SVGSVGElement, { type: TypeId; n: number; top: boolean; bars: boolean; colour: (typeof COLOURS)[number]; glass: string; w: number; h: number; lang: Language }>(
-  ({ type, n, top, bars, colour, glass, w, h, lang }, ref) => {
+const Elevation = React.forwardRef<SVGSVGElement, { type: TypeId; n: number; top: boolean; bars: boolean; colour: (typeof COLOURS)[number]; glass: string; w: number; h: number; lang: Language; plan?: boolean }>(
+  ({ type, n, top, bars, colour, glass, w, h, lang, plan = true }, ref) => {
     const S = 300 / Math.max(w, h);
-    const W = w * S, H = h * S, P = 9, pad = 46;
+    const W = w * S, H = h * S, P = 9, pad = plan ? 46 : 14;
     const VW = W + pad * 2, VH = H + pad * 2;
     const topH = top ? Math.min(H * 0.26, 46) : 0;
     const frame = colour.hex, frameD = shade(colour.hex, 0.78), frameL = shade(colour.hex, 1.12);
-    const glassFill = glass === 'hrppp' ? 'url(#g3)' : glass === 'geluid' ? 'url(#gs)' : 'url(#g2)';
+    const glassFill = !plan ? 'url(#gw)' : glass === 'hrppp' ? 'url(#g3)' : glass === 'geluid' ? 'url(#gs)' : 'url(#g2)';
     const cells = Array.from({ length: n }, (_, i) => i);
     const cw = (W - 2 * P) / n;
     const y0 = pad + P + topH, ch = H - 2 * P - topH;
@@ -82,8 +84,10 @@ const Elevation = React.forwardRef<SVGSVGElement, { type: TypeId; n: number; top
           <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#a9c7dd" /><stop offset=".5" stopColor="#6f93b3" /><stop offset="1" stopColor="#3f5f7f" /></linearGradient>
           <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#b7d3c9" /><stop offset=".5" stopColor="#7aa39a" /><stop offset="1" stopColor="#456c66" /></linearGradient>
           <linearGradient id="gs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#c3c9e6" /><stop offset=".5" stopColor="#8790c2" /><stop offset="1" stopColor="#525a8f" /></linearGradient>
+          <linearGradient id="gw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#9fb7cc" /><stop offset=".45" stopColor="#5d7286" /><stop offset="1" stopColor="#2b3540" /></linearGradient>
           <linearGradient id="refl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset=".5" stopColor="#fff" stopOpacity=".35" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient>
           <pattern id="wood" width="40" height="8" patternUnits="userSpaceOnUse"><rect width="40" height="8" fill={frame} /><path d="M0 3 Q10 1 20 3 T40 3" stroke={shade(frame, 0.75)} strokeWidth="1" fill="none" /><path d="M0 6 Q12 7 24 5 T40 6" stroke={shade(frame, 0.85)} strokeWidth=".6" fill="none" /></pattern>
+          <linearGradient id="revealShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#000" stopOpacity=".45" /><stop offset="1" stopColor="#000" stopOpacity="0" /></linearGradient>
           <marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#60a5fa" /></marker>
         </defs>
         {/* outer frame */}
@@ -112,14 +116,14 @@ const Elevation = React.forwardRef<SVGSVGElement, { type: TypeId; n: number; top
                 </g>
               )}
               {/* opening symbols */}
-              {(k === 'dr' || k === 'dl') && (
+              {plan && (k === 'dr' || k === 'dl') && (
                 <g stroke="#60a5fa" strokeWidth="1.1" fill="none" strokeDasharray="5 4" opacity=".9">
                   <path d={k === 'dr' ? `M${gx + gw} ${gy} L${gx} ${gy + gh / 2} L${gx + gw} ${gy + gh}` : `M${gx} ${gy} L${gx + gw} ${gy + gh / 2} L${gx} ${gy + gh}`} />
                   {type === 'dk' && <path d={`M${gx} ${gy + gh} L${gx + gw / 2} ${gy} L${gx + gw} ${gy + gh}`} />}
                 </g>
               )}
-              {(k === 'sl' || k === 'sr') && <path d={`M${gx + gw * 0.25} ${gy + gh / 2} L${gx + gw * 0.75 + 30} ${gy + gh / 2}`} stroke="#60a5fa" strokeWidth="2" markerEnd="url(#arr)" />}
-              {k === 'v' && type !== 'hst' && <text x={gx + gw / 2} y={gy + gh / 2 + 4} textAnchor="middle" fontSize="11" fill="#e2e8f0" opacity=".7">V</text>}
+              {plan && (k === 'sl' || k === 'sr') && <path d={`M${gx + gw * 0.25} ${gy + gh / 2} L${gx + gw * 0.75 + 30} ${gy + gh / 2}`} stroke="#60a5fa" strokeWidth="2" markerEnd="url(#arr)" />}
+              {plan && k === 'v' && type !== 'hst' && <text x={gx + gw / 2} y={gy + gh / 2 + 4} textAnchor="middle" fontSize="11" fill="#e2e8f0" opacity=".7">V</text>}
               {/* handle */}
               {(k === 'dr' || k === 'dl' || k === 'sl') && (
                 <rect x={k === 'dl' ? x + cw - 10 : x + 5} y={y0 + ch / 2 - 12} width="4" height="24" rx="2" fill="#d4d8de" stroke="#6b7280" strokeWidth=".5" />
@@ -129,18 +133,44 @@ const Elevation = React.forwardRef<SVGSVGElement, { type: TypeId; n: number; top
           );
         })}
         {/* dimension lines */}
-        <g stroke="#94a3b8" strokeWidth=".8" fill="#cbd5e1" fontSize="11" fontFamily="ui-monospace,monospace">
+        {plan && <g stroke="#94a3b8" strokeWidth=".8" fill="#cbd5e1" fontSize="11" fontFamily="ui-monospace,monospace">
           <path d={`M${pad} ${pad + H + 18} H${pad + W}`} markerStart="url(#arr)" markerEnd="url(#arr)" />
           <text x={pad + W / 2} y={pad + H + 34} textAnchor="middle" stroke="none">{w * 10} mm</text>
           <path d={`M${pad + W + 18} ${pad} V${pad + H}`} markerStart="url(#arr)" markerEnd="url(#arr)" />
           <text x={pad + W + 26} y={pad + H / 2} stroke="none" transform={`rotate(90 ${pad + W + 26} ${pad + H / 2})`} textAnchor="middle">{h * 10} mm</text>
-        </g>
-        <text x={pad} y={pad - 14} fontSize="11" fill="#94a3b8">{colour.ral ?? colour.name[lang]}</text>
+        </g>}
+        {plan && <text x={pad} y={pad - 14} fontSize="11" fill="#94a3b8">{colour.ral ?? colour.name[lang]}</text>}
+        {!plan && <rect x={pad - 6} y={pad + H} width={W + 12} height="7" rx="1" fill="#2f3237" />}
+        {!plan && <rect x={pad} y={pad} width={W} height="10" fill="url(#revealShade)" />}
       </svg>
     );
   },
 );
 Elevation.displayName = 'Elevation';
+
+/** Procedural Dutch facing brick (wildverband-like) with mortar, drawn once to a canvas. */
+const BrickWall = () => {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const c = ref.current; if (!c) return;
+    const W = 1000, H = 800; c.width = W; c.height = H;
+    const g = c.getContext('2d')!;
+    g.fillStyle = '#a49c90'; g.fillRect(0, 0, W, H);
+    const bw = 74, bh = 26, m = 4;
+    let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    for (let r = 0; r * (bh + m) < H; r++) {
+      const off = r % 2 ? bw / 2 : 0;
+      for (let x = -bw; x < W + bw; x += bw + m) {
+        const X = x + off, Y = r * (bh + m);
+        const li = 34 + rnd() * 16, hue = 18 + rnd() * 14, sat = 14 + rnd() * 18;
+        g.fillStyle = `hsl(${hue},${sat}%,${li}%)`; g.fillRect(X, Y, bw, bh);
+        for (let k = 0; k < 40; k++) { g.fillStyle = `hsla(${hue},${sat}%,${li + (rnd() - .5) * 18}%,.6)`; g.fillRect(X + rnd() * bw, Y + rnd() * bh, 1 + rnd() * 3, 1 + rnd() * 2); }
+        const gr = g.createLinearGradient(0, Y, 0, Y + bh); gr.addColorStop(0, 'rgba(255,255,255,.08)'); gr.addColorStop(1, 'rgba(0,0,0,.18)'); g.fillStyle = gr; g.fillRect(X, Y, bw, bh);
+      }
+    }
+  }, []);
+  return <canvas ref={ref} aria-hidden className="absolute inset-0 h-full w-full object-cover" />;
+};
 
 export const Configurator = ({ lang }: { lang: Language }) => {
   const [type, setType] = useState<TypeId>('dk');
@@ -152,6 +182,7 @@ export const Configurator = ({ lang }: { lang: Language }) => {
   const [w, setW] = useState(140);
   const [h, setH] = useState(150);
   const svgRef = useRef<SVGSVGElement>(null);
+  const [view, setView] = useState<'wall' | 'plan'>('wall');
   const { has, toggle } = useQuote();
   const colour = COLOURS.find((c) => c.id === colourId)!;
   const t = (k: string) => TX[k][lang];
@@ -192,21 +223,31 @@ export const Configurator = ({ lang }: { lang: Language }) => {
         </div>
         <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">
           <Reveal>
-            <div className="relative flex aspect-[5/4] items-center justify-center overflow-hidden rounded-[28px] border border-white/10 p-6"
-              style={{ background: 'radial-gradient(ellipse at 50% 35%, #1c2433, #0b0d12 70%)' }}>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/50 to-transparent" />
-              <Float amp={8} duration={6}>
-                <TiltCard className="rounded-xl" max={10}>
-                  <div className="h-[min(56vw,420px)] w-[min(70vw,520px)]">
-                    <AnimatePresence mode="popLayout">
-                      <motion.div key={`${type}-${n}-${top}`} className="h-full w-full" initial={{ opacity: 0, scale: 0.94, rotateY: -20 }} animate={{ opacity: 1, scale: 1, rotateY: 0 }} exit={{ opacity: 0, scale: 0.96 }} transition={{ type: 'spring', stiffness: 160, damping: 20 }}>
-                        <Elevation ref={svgRef} type={type} n={n} top={top} bars={bars} colour={colour} glass={glass} w={w} h={h} lang={lang} />
-                      </motion.div>
-                    </AnimatePresence>
-                  </div>
-                </TiltCard>
-              </Float>
-              <p className="absolute bottom-3 left-4 right-4 text-center text-[11px] text-zinc-500">{t('note')}</p>
+            <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0b0d12]">
+              <div className="absolute left-4 top-4 z-10 flex rounded-full border border-white/10 bg-black/60 p-1 text-xs font-bold backdrop-blur">
+                {(['wall', 'plan'] as const).map((v) => (
+                  <button key={v} onClick={() => setView(v)} aria-pressed={view === v}
+                    className={`rounded-full px-4 py-1.5 transition-colors ${view === v ? 'bg-white text-black' : 'text-zinc-300 hover:text-white'}`}>{t(v)}</button>
+                ))}
+              </div>
+              <div className="relative flex aspect-[5/4] items-center justify-center">
+                {view === 'wall' && (
+                  <>
+                    <BrickWall />
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,transparent_30%,rgba(0,0,0,.55)_100%)]" />
+                  </>
+                )}
+                {view === 'plan' && <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,#1c2433,#0b0d12_70%)] [background-size:auto] " style={{ backgroundImage: 'radial-gradient(ellipse at 50% 35%, #1c2433, #0b0d12 70%), linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px)', backgroundSize: 'auto, 24px 24px, 24px 24px', backgroundBlendMode: 'normal, screen, screen' }} />}
+                <motion.div layout className="relative h-[78%] w-[86%]"
+                  style={view === 'wall' ? { filter: 'drop-shadow(0 18px 30px rgba(0,0,0,.55)) drop-shadow(0 0 1px rgba(0,0,0,.8))' } : undefined}>
+                  <AnimatePresence mode="popLayout">
+                    <motion.div key={`${type}-${n}-${top}-${view}`} className="h-full w-full" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}>
+                      <Elevation ref={svgRef} type={type} n={n} top={top} bars={bars} colour={colour} glass={glass} w={w} h={h} lang={lang} plan={view === 'plan'} />
+                    </motion.div>
+                  </AnimatePresence>
+                </motion.div>
+              </div>
+              {view === 'plan' && <p className="border-t border-white/10 px-4 py-3 text-center text-[11px] text-zinc-500">{t('note')}</p>}
             </div>
           </Reveal>
           <Reveal delay={0.1}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
 /* ------------------------------------------------------------------ */
@@ -164,91 +164,23 @@ export const Spotlights = ({ className = '' }: { className?: string }) => {
 };
 
 /* ------------------------------------------------------------------ */
-/* Particle logo intro (particle morph)                                */
+/* Logo curtain intro — the real 3D logo, a light sweep, curtain up     */
 /* ------------------------------------------------------------------ */
 
-export const ParticleIntro = ({ label = 'Skip' }: { label?: string }) => {
+export const LogoIntro = ({ label = 'Skip', logo }: { label?: string; logo: string }) => {
   const reduce = useReducedMotion();
   const [show, setShow] = useState(() => {
-    try { return !sessionStorage.getItem('jj_intro'); } catch { return true; }
+    try { return !sessionStorage.getItem('jj_intro'); } catch { return false; }
   });
-  const ref = useRef<HTMLCanvasElement>(null);
-
   const finish = () => {
     try { sessionStorage.setItem('jj_intro', '1'); } catch { /* storage blocked */ }
     setShow(false);
   };
-
   useEffect(() => {
     if (!show) return;
     if (reduce) { finish(); return; }
-    const c = ref.current; if (!c) return;
-    const ctx = c.getContext('2d'); if (!ctx) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const W = window.innerWidth, H = window.innerHeight;
-    c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    // Sample target points from the wordmark + window icon.
-    const off = document.createElement('canvas');
-    const ow = Math.min(W * 0.86, 1100), oh = ow * 0.36;
-    off.width = ow; off.height = oh;
-    const o = off.getContext('2d')!;
-    o.fillStyle = '#fff';
-    // window icon
-    const ih = oh * 0.62, iw = ih * 0.55, ix = 0, iy = (oh - ih) / 2;
-    o.fillRect(ix, iy, iw, ih * 0.08); o.fillRect(ix, iy + ih * 0.92, iw, ih * 0.08);
-    o.fillRect(ix, iy, iw * 0.12, ih); o.fillRect(ix + iw * 0.88, iy, iw * 0.12, ih);
-    o.fillRect(ix + iw * 0.46, iy, iw * 0.08, ih);
-    let fs = oh * 0.5;
-    o.font = `800 ${fs}px Archivo, Inter, sans-serif`;
-    const avail = ow - iw * 1.25 - 4;
-    const full = o.measureText('JUNIORJOB').width;
-    if (full > avail) { fs *= avail / full; o.font = `800 ${fs}px Archivo, Inter, sans-serif`; }
-    o.textBaseline = 'middle';
-    o.fillText('JUNIORJOB', iw * 1.25, oh * 0.5);
-    const data = o.getImageData(0, 0, ow, oh).data;
-    const gap = Math.max(3, Math.round(ow / 190));
-    const targets: { x: number; y: number; blue: boolean }[] = [];
-    const textW = o.measureText('JUNIOR').width;
-    for (let y = 0; y < oh; y += gap) for (let x = 0; x < ow; x += gap) {
-      if (data[(y * ow + x) * 4 + 3] > 128) targets.push({ x: x + (W - ow) / 2, y: y + (H - oh) / 2, blue: x < iw || x > iw * 1.25 + textW });
-    }
-    const ps = targets.map((t) => {
-      const a = Math.random() * Math.PI * 2, d = Math.max(W, H) * (0.6 + Math.random() * 0.6);
-      return { sx: W / 2 + Math.cos(a) * d, sy: H / 2 + Math.sin(a) * d, x: 0, y: 0, tx: t.x, ty: t.y, ex: 0, ey: 0, blue: t.blue, delay: Math.random() * 450 };
-    });
-    for (const p of ps) {
-      const a = Math.atan2(p.ty - H / 2, p.tx - W / 2) + (Math.random() - 0.5) * 0.8;
-      const s = Math.max(W, H) * (0.5 + Math.random() * 0.7);
-      p.ex = Math.cos(a) * s; p.ey = Math.sin(a) * s;
-    }
-
-    let raf = 0; const start = performance.now();
-    const GATHER = 1000, HOLD = 2000, END = 2700;
-    const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
-    const easeIn = (x: number) => x * x * x;
-    const frame = (now: number) => {
-      const t = now - start;
-      ctx.fillStyle = 'rgba(5,6,10,0.35)'; ctx.fillRect(0, 0, W, H);
-      const sweep = (t - GATHER) / (HOLD - GATHER);
-      for (const p of ps) {
-        if (t < HOLD) {
-          const k = easeOut(Math.min(1, Math.max(0, (t - p.delay) / GATHER)));
-          p.x = p.sx + (p.tx - p.sx) * k; p.y = p.sy + (p.ty - p.sy) * k;
-        } else {
-          const k = easeIn(Math.min(1, (t - HOLD) / (END - HOLD)));
-          p.x = p.tx + p.ex * k; p.y = p.ty + p.ey * k;
-        }
-        const rel = (p.tx - (W - ow) / 2) / ow;
-        const glint = sweep > 0 && sweep < 1.2 ? Math.max(0, 1 - Math.abs(rel - sweep) * 10) : 0;
-        ctx.fillStyle = glint > 0.05 ? `rgba(255,255,255,${0.6 + glint * 0.4})` : p.blue ? '#3b82f6' : '#cfd5de';
-        ctx.fillRect(p.x, p.y, gap * 0.62, gap * 0.62);
-      }
-      if (t < END) raf = requestAnimationFrame(frame); else finish();
-    };
-    raf = requestAnimationFrame(frame);
-    document.documentElement.style.overflow = 'hidden';
-    return () => { cancelAnimationFrame(raf); document.documentElement.style.overflow = ''; };
+    const t = setTimeout(finish, 1900);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, reduce]);
 
@@ -256,14 +188,28 @@ export const ParticleIntro = ({ label = 'Skip' }: { label?: string }) => {
     <AnimatePresence>
       {show && (
         <motion.div
-          className="fixed inset-0 z-[200] bg-[#05060a]"
-          exit={{ opacity: 0, filter: 'blur(10px)' }}
-          transition={{ duration: 0.6 }}
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-[#050608]"
+          exit={{ clipPath: 'inset(0% 0% 100% 0%)' }}
+          initial={{ clipPath: 'inset(0% 0% 0% 0%)' }}
+          transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
         >
-          <canvas ref={ref} className="h-full w-full" />
-          <button onClick={finish} className="absolute bottom-8 right-8 text-xs uppercase tracking-[0.3em] text-zinc-500 hover:text-white transition-colors">
-            {label} →
-          </button>
+          <motion.div
+            className="relative w-[min(78vw,560px)] overflow-hidden"
+            initial={{ opacity: 0, scale: 1.08, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <img src={logo} alt="JuniorJob Onderhoud" className="block w-full [mask-image:radial-gradient(ellipse_62%_55%_at_50%_50%,#000_55%,transparent_100%)]" />
+            <motion.div
+              aria-hidden
+              className="pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent mix-blend-overlay"
+              initial={{ left: '-40%' }}
+              animate={{ left: '120%' }}
+              transition={{ duration: 1.2, delay: 0.5, ease: 'easeInOut' }}
+            />
+          </motion.div>
+          <motion.div className="absolute bottom-0 left-0 h-[2px] bg-[var(--blue-bright)]" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 1.8, ease: 'linear' }} />
+          <button onClick={finish} className="absolute bottom-8 right-8 text-xs uppercase tracking-[0.3em] text-zinc-500 transition-colors hover:text-white">{label} →</button>
         </motion.div>
       )}
     </AnimatePresence>
@@ -329,54 +275,34 @@ export const ConfettiBurst = ({ origin }: { origin: { x: number; y: number } }) 
   return <canvas ref={ref} aria-hidden className="pointer-events-none fixed inset-0 z-[160] h-full w-full" />;
 };
 
-export const VictoryScene = ({ open, origin, title, text, button, onClose }: {
-  open: boolean; origin: { x: number; y: number }; title: string; text: string; button: string; onClose: () => void;
+export const VictoryScene = ({ open, title, text, button, onClose }: {
+  open: boolean; origin?: { x: number; y: number }; title: string; text: string; button: string; onClose: () => void;
 }) => (
   <AnimatePresence>
     {open && (
       <motion.div
-        className="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-md"
+        role="dialog" aria-modal="true"
+        className="fixed inset-0 z-[150] flex items-center justify-center bg-black/70 px-6 backdrop-blur-md"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       >
-        <ConfettiBurst origin={origin} />
-        {/* shockwave rings */}
-        {[0, 0.12, 0.24].map((d) => (
-          <motion.div
-            key={d}
-            aria-hidden
-            className="absolute rounded-full border-2 border-[var(--blue-bright)]"
-            style={{ left: origin.x, top: origin.y, width: 40, height: 40, marginLeft: -20, marginTop: -20 }}
-            initial={{ scale: 0, opacity: 0.9 }}
-            animate={{ scale: 60, opacity: 0, borderWidth: 0.5 }}
-            transition={{ duration: 1.3, delay: d, ease: [0.2, 0.7, 0.2, 1] }}
-          />
-        ))}
         <motion.div
-          className="relative mx-6 max-w-md rounded-[2rem] border border-white/10 bg-[#0b0d12]/90 p-10 text-center shadow-[0_40px_120px_rgba(37,99,235,0.35)]"
-          initial={{ scale: 0.4, rotateX: 50, opacity: 0, y: 40 }}
-          animate={{ scale: 1, rotateX: 0, opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 220, damping: 16, delay: 0.15 }}
-          style={{ transformPerspective: 900 }}
+          className="relative w-full max-w-md overflow-hidden rounded-[28px] border border-white/10 bg-[#0b0d12] p-10 text-center shadow-[0_40px_120px_rgba(0,0,0,.6)]"
+          initial={{ y: 30, opacity: 0, scale: 0.97 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: 20, opacity: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          {/* window that swings open */}
-          <div className="mx-auto mb-8 h-28 w-24" style={{ perspective: 500 }}>
-            <div className="relative h-full w-full rounded-md border-4 border-[var(--steel)] bg-gradient-to-br from-sky-300/30 to-[var(--blue)]/60 shadow-[0_0_60px_rgba(59,130,246,0.6)]">
-              <motion.div
-                className="absolute inset-0 rounded-sm border-4 border-[var(--steel)] bg-gradient-to-br from-white/40 to-[var(--blue)]/40"
-                style={{ transformOrigin: 'left center' }}
-                initial={{ rotateY: 0 }}
-                animate={{ rotateY: -65 }}
-                transition={{ delay: 0.6, type: 'spring', stiffness: 90, damping: 9 }}
-              />
-              <motion.svg viewBox="0 0 24 24" className="absolute inset-0 m-auto h-12 w-12 text-white" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.9, type: 'spring' }}>
-                <motion.path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"
-                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 1, duration: 0.5 }} />
-              </motion.svg>
-            </div>
-          </div>
-          <h2 className="font-display text-3xl font-extrabold tracking-tight mb-3">{title}</h2>
-          <p className="text-zinc-400 mb-8">{text}</p>
-          <button onClick={onClose} className="rounded-full bg-white px-7 py-3 font-bold text-black hover:bg-zinc-200 transition-colors">{button}</button>
+          <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-[var(--blue)]/30 blur-[70px]" />
+          <svg viewBox="0 0 80 80" className="relative mx-auto mb-7 h-20 w-20">
+            <motion.circle cx="40" cy="40" r="36" fill="none" stroke="var(--blue-bright)" strokeWidth="3" strokeLinecap="round"
+              initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.8, ease: 'easeInOut', delay: 0.2 }}
+              style={{ rotate: -90, transformOrigin: '40px 40px' }} />
+            <motion.path d="M25 41l10 10 20-22" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"
+              initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.45, ease: 'easeOut', delay: 0.9 }} />
+          </svg>
+          <h2 className="font-display relative text-3xl font-extrabold tracking-tight">{title}</h2>
+          <p className="relative mt-3 text-zinc-400">{text}</p>
+          <button onClick={onClose} className="relative mt-8 rounded-full bg-white px-7 py-3 font-bold text-black transition-colors hover:bg-[var(--steel)]">{button}</button>
         </motion.div>
       </motion.div>
     )}

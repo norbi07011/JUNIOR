@@ -20,13 +20,13 @@ export const galleryImages: Record<string, string[]> = {
 
 /** One photo per service, in the same order as translations.services.items. */
 export const serviceImages = [
-  'projekt-okna-11.jpeg',   // ramen
-  'drzwi1.jpeg',            // deuren
-  'hst.jpeg',               // HST
-  'okna-dachowe.jpeg',      // dakramen
-  'projekt-okna-1111.jpeg', // binnenafwerking
-  'projekt-okna-111.jpeg',  // vensterbanken
-  'elewacje.jpeg',          // keralit
+  'projekt-okna11111.jpeg',  // ramen
+  'drzwi5.jpeg',             // deuren
+  'hst.jpeg',                // HST
+  'okna-dachowe555.jpeg',    // dakramen
+  'projekt-okna-11111.jpeg', // binnenafwerking
+  'projekt-okna-111.jpeg',   // vensterbanken
+  'elewacje1.jpeg',          // keralit
 ].map(asset);
 
 export const CONTACT = {

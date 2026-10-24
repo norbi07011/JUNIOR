@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { Flame, Thermometer, Info } from 'lucide-react';
 import type { Language } from '../translations';
-import { Reveal, RollingNumber, SplitText } from '../fx/core';
+import { asset, Reveal, SplitText } from '../fx/core';
 import { Eyebrow } from './Shared';
 
 /* ------------------------------------------------------------------ */
@@ -43,49 +43,44 @@ const TX: Record<Language, Record<string, string>> = {
 };
 
 /* ---------- facade geometry (internal 960×600 canvas) ---------- */
-const W = 960, H = 600, GX = 240, GY = 150, CELL = W / GX;
+// Real photo of a Dutch terraced house (3:4). Geometry in photo pixels of a 900×1200 canvas.
+const W = 900, H = 1200, GX = 180, GY = 240, CELL = W / GX;
+const P = (x: number, y: number, w: number, h: number) => ({ x: x * 9, y: y * 12, w: w * 9, h: h * 12 }); // % → px
 type R = { x: number; y: number; w: number; h: number };
-const WINDOWS: R[] = [
-  { x: 240, y: 212, w: 150, h: 118 }, { x: 570, y: 212, w: 150, h: 118 },
-  { x: 222, y: 378, w: 214, h: 140 }, { x: 676, y: 392, w: 84, h: 118 },
-];
-const DOOR: R = { x: 556, y: 360, w: 92, h: 196 };
-const FACADE: R = { x: 180, y: 168, w: 600, h: 392 };
+const WINDOWS: R[] = [P(43.5, 42.6, 17.5, 25), P(89, 42.6, 11, 25)];
+const ROOFWIN: R = P(46.5, 15.2, 20.5, 4.6);
+const DOOR: R = P(36.5, 87.5, 40, 12.5);
+const ROOF_TOP = 13 * 12, ROOF_BOT = 38.5 * 12;
 const inR = (x: number, y: number, r: R, pad = 0) => x >= r.x - pad && x < r.x + r.w + pad && y >= r.y - pad && y < r.y + r.h + pad;
-const roofAt = (x: number) => 168 - Math.max(0, 1 - Math.abs(x - 480) / 330) * 130;
 
 /** Outside surface temperature field (°C) for a glazing U-value; outdoor 0 °C, indoor 20 °C. */
-function heatField(u: number, seed: Float32Array) {
+function heatField(u: number, lum: Float32Array) {
   const f = new Float32Array(GX * GY);
   const glassT = u * 20 * 0.04; // Rse ≈ 0.04 m²K/W → outside glass surface temperature
-  const frameT = 0.6 + u * 0.12;
+  const frameT = 0.5 + u * 0.12;
   const leak = Math.max(0, (u - 1.2) / 4.6);
   for (let j = 0; j < GY; j++) {
     for (let i = 0; i < GX; i++) {
-      const x = (i + 0.5) * CELL, y = (j + 0.5) * CELL, k = j * GX + i;
+      const x = (i + 0.5) * CELL, y = (j + 0.5) * CELL, k = j * GX + i, L = lum[k];
       let t: number;
-      if (y > 560) t = 0.2 + seed[k] * 0.3;                                // pavement
-      else if (y < roofAt(x)) t = -6 + y / 120;                             // night sky
-      else if (y < 168) t = 0.4 + (1 - (y - roofAt(x)) / 140) * 0.6 * (1 + leak); // roof, warmer at the ridge if leaky
-      else if (!inR(x, y, FACADE)) t = -5;
-      else t = 0.3 + seed[k] * 0.25;                                       // insulated cavity wall
-      for (const w of WINDOWS) {
+      if (y < ROOF_TOP) t = -4.5 + L * 0.8;                                 // sky / tree
+      else if (y < ROOF_BOT) t = 0.2 + (1 - L) * 0.5 + leak * 0.6 * (1 - (y - ROOF_TOP) / (ROOF_BOT - ROOF_TOP)); // roof tiles
+      else t = -0.4 + (1 - L) * 0.6;                                        // insulated brick, texture from photo
+      for (const w of [...WINDOWS, ROOFWIN]) {
         if (inR(x, y, w)) {
           const edge = Math.min(x - w.x, w.x + w.w - x, y - w.y, w.y + w.h - y);
-          t = edge < 10 ? frameT + leak * 1.4 : glassT + (1 - (y - w.y) / w.h) * glassT * 0.25;
-          if (Math.abs(x - (w.x + w.w / 2)) < 4 && w.w > 120) t = frameT; // mullion
-        } else if (y < w.y && y > w.y - 70 && x > w.x && x < w.x + w.w) {
-          t += leak * 1.6 * Math.exp(-(w.y - y) / 26);                       // heat rising above leaky windows
-        } else if (inR(x, y, w, 8)) {
-          t += 0.35 + leak * 0.9;                                           // reveal / thermal bridge
+          t = edge < 22 ? frameT + leak * 1.3 : glassT + (1 - (y - w.y) / w.h) * glassT * 0.3;
+        } else if (y < w.y && y > w.y - 140 && x > w.x && x < w.x + w.w) {
+          t += leak * 1.5 * Math.exp(-(w.y - y) / 50);                       // warm air rising above leaky windows
+        } else if (inR(x, y, w, 16)) {
+          t += 0.3 + leak * 0.9;                                            // reveal / thermal bridge
         }
       }
-      if (inR(x, y, DOOR)) t = inR(x, y, { x: DOOR.x + 14, y: DOOR.y + 14, w: DOOR.w - 28, h: 60 }) ? glassT : 1.1 + leak * 0.6;
+      if (inR(x, y, DOOR)) t = 0.9 + leak * 0.5 + (1 - L) * 0.2;
       f[k] = t;
     }
   }
-  // two blur passes = soft thermal look
-  for (let pass = 0; pass < 2; pass++) {
+  for (let pass = 0; pass < 3; pass++) {
     const g = f.slice();
     for (let j = 1; j < GY - 1; j++) for (let i = 1; i < GX - 1; i++) {
       const k = j * GX + i;
@@ -110,39 +105,7 @@ function ironbow(t: number): [number, number, number] {
   }
   return [255, 255, 230];
 }
-const TMIN = -3, TMAX = 5.5;
-
-/** Plain facade drawing (evening). */
-function drawFacade(g: CanvasRenderingContext2D) {
-  const sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#0d1626'); sky.addColorStop(1, '#25324a');
-  g.fillStyle = sky; g.fillRect(0, 0, W, H);
-  // roof
-  g.fillStyle = '#2a2c31'; g.beginPath(); g.moveTo(150, 168); g.lineTo(480, 38); g.lineTo(810, 168); g.closePath(); g.fill();
-  g.strokeStyle = 'rgba(255,255,255,.06)';
-  for (let y = 50; y < 168; y += 10) { g.beginPath(); g.moveTo(480 - (y - 38) * 2.54, y); g.lineTo(480 + (y - 38) * 2.54, y); g.stroke(); }
-  // brick facade
-  g.fillStyle = '#5a2c1f'; g.fillRect(FACADE.x, FACADE.y, FACADE.w, FACADE.h);
-  for (let r = 0; r < 49; r++) for (let c = -1; c < 26; c++) {
-    const x = FACADE.x + c * 24 + (r % 2 ? 12 : 0), y = FACADE.y + r * 8;
-    g.fillStyle = `hsl(${12 + ((r * 7 + c * 13) % 9)},${38 + ((r + c) % 5) * 3}%,${24 + ((r * 3 + c) % 7)}%)`;
-    g.fillRect(Math.max(FACADE.x, x + 1), y + 1, 22, 6);
-  }
-  // windows (warm light inside)
-  for (const w of [...WINDOWS]) {
-    g.fillStyle = '#e9e6df'; g.fillRect(w.x - 8, w.y - 8, w.w + 16, w.h + 16);
-    const lg = g.createLinearGradient(w.x, w.y, w.x, w.y + w.h); lg.addColorStop(0, '#f2c27a'); lg.addColorStop(1, '#b0743a');
-    g.fillStyle = lg; g.fillRect(w.x, w.y, w.w, w.h);
-    g.fillStyle = 'rgba(255,255,255,.12)'; g.beginPath(); g.moveTo(w.x, w.y); g.lineTo(w.x + w.w * 0.4, w.y); g.lineTo(w.x, w.y + w.h * 0.6); g.fill();
-    if (w.w > 120) { g.fillStyle = '#e9e6df'; g.fillRect(w.x + w.w / 2 - 4, w.y, 8, w.h); }
-    g.fillStyle = '#3a3d42'; g.fillRect(w.x - 12, w.y + w.h + 8, w.w + 24, 8);
-  }
-  // door
-  g.fillStyle = '#1f3a5f'; g.fillRect(DOOR.x, DOOR.y, DOOR.w, DOOR.h);
-  g.fillStyle = '#f2c27a'; g.fillRect(DOOR.x + 14, DOOR.y + 14, DOOR.w - 28, 60);
-  g.fillStyle = '#c9cdd1'; g.fillRect(DOOR.x + DOOR.w - 18, DOOR.y + 110, 6, 30);
-  // pavement
-  g.fillStyle = '#3b3e44'; g.fillRect(0, 560, W, 40);
-}
+const TMIN = -1.5, TMAX = 4.8;
 
 export const Thermal = ({ lang }: { lang: Language }) => {
   const t = TX[lang];
@@ -164,8 +127,16 @@ export const Thermal = ({ lang }: { lang: Language }) => {
     const c = ref.current; if (!c) return;
     const g = c.getContext('2d'); if (!g) return;
     c.width = W; c.height = H;
-    const base = document.createElement('canvas'); base.width = W; base.height = H;
-    drawFacade(base.getContext('2d')!);
+    const photo = new Image();
+    photo.src = asset('/okna-dachowe4.jpeg');
+    let lum: Float32Array | null = null;
+    photo.onload = () => {
+      const t = document.createElement('canvas'); t.width = GX; t.height = GY;
+      const tg = t.getContext('2d')!; tg.drawImage(photo, 0, 0, GX, GY);
+      const d = tg.getImageData(0, 0, GX, GY).data; lum = new Float32Array(GX * GY);
+      for (let k = 0; k < GX * GY; k++) lum[k] = (0.299 * d[k * 4] + 0.587 * d[k * 4 + 1] + 0.114 * d[k * 4 + 2]) / 255;
+      s.fieldL = s.fieldR = null;
+    };
     const ir = document.createElement('canvas'); ir.width = GX; ir.height = GY;
     const ig = ir.getContext('2d')!; const img = ig.createImageData(GX, GY);
     const s = state.current;
@@ -174,34 +145,29 @@ export const Thermal = ({ lang }: { lang: Language }) => {
     let cacheL = -1, cacheR = -1;
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame);
-      if (!visible) return;
+      if (!visible || !lum) return;
       const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      // tween towards targets
       const tL = GLASS[(c.dataset.now as GlassId) || 'enkel'].u, tR = GLASS[(c.dataset.next as GlassId) || 'hrppp'].u;
       s.uL += (tL - s.uL) * Math.min(1, dt * 4); s.uR += (tR - s.uR) * Math.min(1, dt * 4);
       s.ir += ((c.dataset.ir === '1' ? 1 : 0) - s.ir) * Math.min(1, dt * 5);
-      if (Math.abs(s.uL - cacheL) > 0.01 || !s.fieldL) { s.fieldL = heatField(s.uL, seed); cacheL = s.uL; }
-      if (Math.abs(s.uR - cacheR) > 0.01 || !s.fieldR) { s.fieldR = heatField(s.uR, seed); cacheR = s.uR; }
+      if (Math.abs(s.uL - cacheL) > 0.01 || !s.fieldL) { s.fieldL = heatField(s.uL, lum); cacheL = s.uL; }
+      if (Math.abs(s.uR - cacheR) > 0.01 || !s.fieldR) { s.fieldR = heatField(s.uR, lum); cacheR = s.uR; }
       const sx = Math.round(s.split * GX);
       const flick = now / 1000;
       for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) {
         const k = j * GX + i;
-        const v = (i < sx ? s.fieldL! : s.fieldR!)[k] + Math.sin(flick * 3 + seed[k] * 40) * 0.04;
+        const v = (i < sx ? s.fieldL! : s.fieldR!)[k] + Math.sin(flick * 2 + seed[k] * 40) * 0.03;
         const [r, gg, b] = ironbow((v - TMIN) / (TMAX - TMIN));
         img.data[k * 4] = r; img.data[k * 4 + 1] = gg; img.data[k * 4 + 2] = b; img.data[k * 4 + 3] = 255;
       }
       ig.putImageData(img, 0, 0);
-      g.drawImage(base, 0, 0);
-      g.globalAlpha = s.ir; g.imageSmoothingEnabled = true; g.drawImage(ir, 0, 0, W, H); g.globalAlpha = 1;
-      if (s.ir > 0.05) {
-        // scanlines + vignette
-        g.fillStyle = `rgba(0,0,0,${0.12 * s.ir})`; for (let y = 0; y < H; y += 3) g.fillRect(0, y, W, 1);
-        const vg = g.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.85); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, `rgba(0,0,0,${0.55 * s.ir})`);
-        g.fillStyle = vg; g.fillRect(0, 0, W, H);
-      }
-      // split line
+      g.drawImage(photo, 0, 0, W, H);
+      g.globalAlpha = s.ir; g.imageSmoothingEnabled = true; g.drawImage(ir, 0, 0, W, H);
+      // keep a hint of the real photo's detail under the thermal colours
+      g.globalCompositeOperation = 'soft-light'; g.globalAlpha = 0.35 * s.ir; g.drawImage(photo, 0, 0, W, H);
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
       const lx = s.split * W;
-      g.fillStyle = 'rgba(255,255,255,.9)'; g.fillRect(lx - 1.5, 0, 3, H);
+      g.fillStyle = 'rgba(255,255,255,.95)'; g.fillRect(lx - 2, 0, 4, H);
     };
     raf = requestAnimationFrame(frame);
     return () => { cancelAnimationFrame(raf); io.disconnect(); };
@@ -256,12 +222,12 @@ export const Thermal = ({ lang }: { lang: Language }) => {
           <Reveal><p className="mt-6 text-lg leading-relaxed text-zinc-400">{t.intro}</p></Reveal>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+        <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-start">
           <Reveal>
             <div className="overflow-hidden rounded-[28px] border border-white/10 bg-black">
               <div
                 ref={wrap}
-                className="relative aspect-[8/5] cursor-ew-resize touch-pan-y select-none"
+                className="relative aspect-[3/4] w-full cursor-ew-resize touch-pan-y select-none"
                 onPointerDown={onDown}
                 onPointerMove={onMove}
                 onPointerUp={() => { dragging.current = false; }}
@@ -326,7 +292,7 @@ export const Thermal = ({ lang }: { lang: Language }) => {
               <div className="rounded-2xl bg-gradient-to-br from-[var(--blue)]/25 to-transparent p-5">
                 <div className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.25em] text-[var(--blue-bright)]"><Flame size={14} /> {t.calc}</div>
                 <div className="font-display text-4xl font-extrabold">
-                  € <RollingNumber key={`${now}-${next}-${area}-${price}`} value={Math.round(saveEur)} className="text-white" />
+                  € <motion.span key={Math.round(saveEur)} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="inline-block tabular-nums">{Math.round(saveEur).toLocaleString('nl-NL')}</motion.span>
                   <span className="ml-2 text-base font-semibold text-zinc-400">{t.perYear}</span>
                 </div>
                 <div className="mt-2 text-sm text-zinc-300">≈ {Math.round(saveM3)} m³ {t.gas} · {t.loss}: {Math.round(GLASS[now].u * area * 20)} W → {Math.round(GLASS[next].u * area * 20)} W</div>

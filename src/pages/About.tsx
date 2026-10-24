@@ -1,12 +1,11 @@
-import React, { useRef, useState } from 'react';
-import { motion, useScroll, useSpring, useTransform } from 'motion/react';
+import { useState } from 'react';
+import { motion } from 'motion/react';
 import { Ruler, Paintbrush, MessageSquare, ShieldCheck } from 'lucide-react';
 import { translations, Language } from '../translations';
 import { fx } from '../translations/fx';
 import { asset, EASE, Float, Parallax, Reveal, RollingNumber, SplitText, TiltCard } from '../fx/core';
-import { Spotlights } from '../fx/canvas';
 import { CTASection, Eyebrow } from '../components/Shared';
-import { useMediaQuery } from './Home';
+
 
 /* ------------------------------------------------------------------ */
 /* Scroll-pinned horizontal timeline                                   */
@@ -15,54 +14,23 @@ import { useMediaQuery } from './Home';
 const Timeline = ({ lang }: { lang: Language }) => {
   const t = translations[lang].about.history;
   const u = translations[lang].ui;
-  const ref = useRef<HTMLDivElement>(null);
-  const desktop = useMediaQuery('(min-width: 1024px)');
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
-  const p = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
-  const x = useTransform(p, [0.05, 0.95], ['0%', `-${Math.max(0, t.items.length * 45 - 100)}%`]);
-  const line = useTransform(p, [0, 1], [0, 1]);
-
-  if (!desktop) {
-    return (
-      <section className="py-28">
-        <div className="mx-auto max-w-7xl px-6">
-          <SplitText text={t.title} className="font-display mb-12 text-5xl font-extrabold tracking-tight" />
-          <div className="space-y-6">
-            {t.items.map((it, i) => (
-              <Reveal key={i}>
-                <div className="rounded-3xl border border-white/[0.07] bg-[var(--panel)] p-8">
-                  <div className="font-display text-5xl font-extrabold text-blue-gradient">{it.year}</div>
-                  <h4 className="font-display mt-4 text-2xl font-bold">{it.title}</h4>
-                  <p className="mt-2 text-zinc-400">{it.description}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section ref={ref} className="relative" style={{ height: `${t.items.length * 80}vh` }}>
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-        <div className="mx-auto mb-16 flex w-full max-w-7xl items-end justify-between px-6">
-          <SplitText text={t.title} className="font-display text-7xl font-extrabold tracking-tight xl:text-8xl" />
-          <p className="max-w-xs text-right text-zinc-500">{u.historyDesc}</p>
+    <section className="py-24 md:py-32">
+      <div className="mx-auto max-w-7xl px-5 md:px-6">
+        <div className="mb-14 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <SplitText text={t.title} className="font-display text-5xl font-extrabold tracking-tight md:text-7xl" />
+          <p className="max-w-xs text-zinc-500 md:text-right">{u.historyDesc}</p>
         </div>
-        <div className="relative mx-auto w-full max-w-7xl px-6">
-          <div className="absolute left-6 right-6 top-[3px] h-[2px] bg-white/[0.06]" />
-          <motion.div style={{ scaleX: line }} className="absolute left-6 right-6 top-[3px] h-[2px] origin-left bg-gradient-to-r from-[var(--blue-bright)] to-[var(--steel)] shadow-[0_0_14px_var(--blue)]" />
-          <motion.div style={{ x }} className="flex">
-            {t.items.map((it, i) => (
-              <div key={i} className="w-[45%] shrink-0 pr-16 pt-12">
-                <div className="mb-8 h-2 w-2 -translate-y-[54px] rounded-full bg-[var(--blue-bright)] shadow-[0_0_0_6px_rgba(59,130,246,0.15)]" />
-                <div className="font-display text-[9rem] font-extrabold leading-none text-steel-gradient opacity-90">{it.year}</div>
-                <h4 className="font-display mt-6 text-4xl font-bold">{it.title}</h4>
-                <p className="mt-4 max-w-md text-lg text-zinc-400">{it.description}</p>
+        <div className="divide-y divide-white/10 border-y border-white/10">
+          {t.items.map((it, i) => (
+            <Reveal key={i} delay={i * 0.05}>
+              <div className="group grid gap-4 py-8 md:grid-cols-[200px_1fr_1.2fr] md:items-baseline md:gap-10">
+                <div className="font-display text-5xl font-extrabold text-zinc-600 transition-colors duration-500 group-hover:text-[var(--blue-bright)] md:text-6xl">{it.year}</div>
+                <h4 className="font-display text-2xl font-bold md:text-3xl">{it.title}</h4>
+                <p className="text-zinc-400 md:text-lg">{it.description}</p>
               </div>
-            ))}
-          </motion.div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
@@ -116,7 +84,8 @@ export const About = ({ lang }: { lang: Language }) => {
     <div>
       {/* Hero with volumetric spotlights + dust */}
       <section className="relative flex min-h-[100svh] items-center overflow-hidden pb-20 pt-36">
-        <Spotlights className="absolute inset-0" />
+        <img src={asset('/projekt-okna11111.jpeg')} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--bg)_25%,rgba(6,7,10,.6))]" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[var(--bg)] to-transparent" />
         <div className="relative mx-auto grid w-full max-w-7xl items-center gap-16 px-6 lg:grid-cols-2">
           <div>
@@ -124,7 +93,7 @@ export const About = ({ lang }: { lang: Language }) => {
               <Eyebrow>{t.subtitle}</Eyebrow>
             </motion.div>
             <SplitText as="h1" onView={false} delay={0.15} text={u.aboutHeading} className="font-display mt-8 text-6xl font-extrabold leading-[0.9] tracking-tight md:text-8xl" />
-            <SplitText as="h1" onView={false} delay={0.35} by="char" text={u.aboutBrand} className="font-display text-blue-gradient text-6xl font-extrabold leading-[1] tracking-tight md:text-8xl" />
+            <SplitText as="h1" onView={false} delay={0.35} text={u.aboutBrand} className="font-display text-blue-gradient text-6xl font-extrabold leading-[1] tracking-tight md:text-8xl" />
             <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.9, ease: EASE }}
               className="mt-8 max-w-xl text-lg font-light leading-relaxed text-zinc-300 md:text-xl">
               {t.description}

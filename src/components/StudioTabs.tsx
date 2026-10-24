@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { Language } from '../translations';
 import type { StudioContent } from '../fx/studio/StudioView';
@@ -16,51 +16,6 @@ export const STUDIOS: { id: string; tab: Record<Language, string>; poster: strin
     load: async () => {
       const [{ createKozijnStudio }, { studioText }] = await Promise.all([import('../fx/studio/kozijnStudio'), import('../fx/studio/studioText')]);
       return { factory: createKozijnStudio, content: studioText as unknown as Record<Language, StudioContent> };
-    },
-  },
-  {
-    id: 'hst',
-    tab: { nl: 'HST-schuifpui', en: 'Lift & slide', pl: 'Drzwi HST' },
-    poster: '/hst.jpeg',
-    load: async () => {
-      const [{ createHstStudio }, { hstContent }] = await Promise.all([import('../fx/studio/hst'), import('../fx/studio/content/hst')]);
-      return { factory: createHstStudio, content: hstContent };
-    },
-  },
-  {
-    id: 'dakraam',
-    tab: { nl: 'Dakramen', en: 'Roof windows', pl: 'Okna dachowe' },
-    poster: '/okna-dachowe.jpeg',
-    load: async () => {
-      const [{ createDakraamStudio }, { dakraamContent }] = await Promise.all([import('../fx/studio/dakraam'), import('../fx/studio/content/dakraam')]);
-      return { factory: createDakraamStudio, content: dakraamContent };
-    },
-  },
-  {
-    id: 'deur',
-    tab: { nl: 'Voordeuren', en: 'Front doors', pl: 'Drzwi' },
-    poster: '/drzwi1.jpeg',
-    load: async () => {
-      const [{ createDeurStudio }, { deurContent }] = await Promise.all([import('../fx/studio/deur'), import('../fx/studio/content/deur')]);
-      return { factory: createDeurStudio, content: deurContent };
-    },
-  },
-  {
-    id: 'keralit',
-    tab: { nl: 'Keralit gevel', en: 'Keralit facade', pl: 'Elewacja Keralit' },
-    poster: '/elewacje.jpeg',
-    load: async () => {
-      const [{ createKeralitStudio }, { keralitContent }] = await Promise.all([import('../fx/studio/keralit'), import('../fx/studio/content/keralit')]);
-      return { factory: createKeralitStudio, content: keralitContent };
-    },
-  },
-  {
-    id: 'houtrot',
-    tab: { nl: 'Houtrotherstel', en: 'Wood rot repair', pl: 'Naprawa drewna' },
-    poster: '/projekt-reperacje-w-drewnie-1.jpeg',
-    load: async () => {
-      const [{ createHoutrotStudio }, { houtrotContent }] = await Promise.all([import('../fx/studio/houtrot'), import('../fx/studio/content/houtrot')]);
-      return { factory: createHoutrotStudio, content: houtrotContent };
     },
   },
 ];
@@ -93,7 +48,7 @@ export const StudioTabs = ({ lang, title, intro, only }: { lang: Language; title
       <div className="pointer-events-none absolute left-1/2 top-1/4 h-[50vmin] w-[80vmin] -translate-x-1/2 rounded-full bg-[var(--blue)]/10 blur-[140px]" />
       <div className="relative mx-auto max-w-7xl px-4 md:px-6">
         <div className="mb-10 max-w-3xl px-2 md:px-0">
-          <Eyebrow>3D</Eyebrow>
+          <Eyebrow>{list.length > 1 ? '3D' : (data?.content[lang].kicker ?? '3D')}</Eyebrow>
           <SplitText key={`${lang}-tabs`} text={title[lang]} className="font-display mt-6 text-4xl font-extrabold leading-[0.95] tracking-tight md:text-7xl" />
           <Reveal><p className="mt-6 text-lg leading-relaxed text-zinc-400">{intro[lang]}</p></Reveal>
         </div>
@@ -119,7 +74,7 @@ export const StudioTabs = ({ lang, title, intro, only }: { lang: Language; title
 
         <AnimatePresence mode="wait">
           <motion.div key={active} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.45, ease: EASE }}>
-            {content && (
+            {content && list.length > 1 && (
               <div className="mb-6 max-w-3xl px-2 md:px-0">
                 <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--blue-bright)]">{content.kicker}</p>
                 <h3 className="font-display mt-2 text-2xl font-bold md:text-4xl">{content.title}</h3>

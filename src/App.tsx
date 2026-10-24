@@ -1,10 +1,10 @@
-import React, { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { motion, useMotionValue } from 'motion/react';
 import { translations, Language } from './translations';
 import { fx } from './translations/fx';
 import { ScrollProgress, SmoothScroll, SplitText, useLenis, asset } from './fx/core';
-import { ParticleIntro } from './fx/canvas';
+import { LogoIntro } from './fx/canvas';
 import { Window3D } from './fx/Window3D';
 import { QuoteProvider } from './fx/nav';
 import { Navbar, Footer, FloatingButtons } from './components/Layout';
@@ -64,7 +64,7 @@ export default function App() {
       <SmoothScroll>
         <QuoteProvider>
           <ScrollToTop />
-          <ParticleIntro label={fx[lang].skipIntro} />
+          <LogoIntro label={fx[lang].skipIntro} logo={asset('/logo.jpeg')} />
           <ScrollProgress />
           <div id="shake-root" className="grain flex min-h-screen flex-col bg-[var(--bg)] font-sans text-white">
             <Navbar lang={lang} setLang={setLang} />

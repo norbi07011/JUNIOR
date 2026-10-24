@@ -109,39 +109,32 @@ type SplitProps = {
   onView?: boolean;
 };
 
-export const SplitText = ({ text, as = 'h2', className = '', by = 'word', delay = 0, stagger, onView = true }: SplitProps) => {
+export const SplitText = ({ text, as = 'h2', className = '', delay = 0, stagger, onView = true }: SplitProps) => {
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-10% 0px' });
+  const inView = useInView(ref, { once: true, margin: '0px 0px -12% 0px' });
   const reduce = useReducedMotion();
   const show = onView ? inView : true;
   const words = text.split(' ');
-  const step = stagger ?? (by === 'char' ? 0.025 : 0.07);
-  let idx = 0;
+  const step = stagger ?? 0.06;
   const Tag = motion[as] as typeof motion.h2;
-  // background-clip:text does not paint through transformed children, so move gradient classes onto each piece.
+  // background-clip:text does not paint through transformed children, so move gradient classes onto each word.
   const gradient = className.split(' ').filter((c) => c.startsWith('text-') && c.endsWith('-gradient')).join(' ');
   const outer = className.split(' ').filter((c) => !(c.startsWith('text-') && c.endsWith('-gradient'))).join(' ');
 
+  // Masked line reveal: every word slides up out of its own clipping box.
   return (
     <Tag ref={ref as React.Ref<HTMLHeadingElement>} className={outer} aria-label={text}>
-      {words.map((w, wi) => (
-        <span key={wi} aria-hidden className="inline-block whitespace-nowrap" style={{ perspective: 600 }}>
-          {(by === 'char' ? w.split('') : [w]).map((piece, pi) => {
-            const i = idx++;
-            return (
-              <motion.span
-                key={pi}
-                className={`inline-block will-change-transform ${gradient}`}
-                initial={reduce ? false : { y: '0.9em', opacity: 0, rotateX: -70, filter: 'blur(8px)' }}
-                animate={show ? { y: 0, opacity: 1, rotateX: 0, filter: 'blur(0px)' } : undefined}
-                transition={{ duration: 0.9, ease: EASE, delay: delay + i * step }}
-                style={{ transformOrigin: '50% 100%' }}
-              >
-                {piece}
-              </motion.span>
-            );
-          })}
-          {wi < words.length - 1 && <span className="inline-block">&nbsp;</span>}
+      {words.map((w, i) => (
+        <span key={i} aria-hidden className="inline-block overflow-hidden pb-[0.08em] align-bottom" style={{ marginBottom: '-0.08em' }}>
+          <motion.span
+            className={`inline-block ${gradient}`}
+            initial={reduce ? false : { y: '105%' }}
+            animate={show ? { y: '0%' } : undefined}
+            transition={{ duration: 0.9, ease: EASE, delay: delay + i * step }}
+          >
+            {w}
+          </motion.span>
+          {i < words.length - 1 && <span className="inline-block">&nbsp;</span>}
         </span>
       ))}
     </Tag>
@@ -149,19 +142,18 @@ export const SplitText = ({ text, as = 'h2', className = '', by = 'word', delay 
 };
 
 /* ------------------------------------------------------------------ */
-/* Scroll reveal (blur + 3D)                                           */
+/* Scroll reveal — quiet fade-up, never blocks interaction             */
 /* ------------------------------------------------------------------ */
 
-export const Reveal = ({ children, delay = 0, className = '', y = 60, rotate = 12 }: { children: React.ReactNode; delay?: number; className?: string; y?: number; rotate?: number }) => {
+export const Reveal = ({ children, delay = 0, className = '', y = 28 }: { children: React.ReactNode; delay?: number; className?: string; y?: number; rotate?: number }) => {
   const reduce = useReducedMotion();
   return (
     <motion.div
       className={className}
-      style={{ transformPerspective: 1000 }}
-      initial={reduce ? false : { opacity: 0, y, rotateX: rotate, filter: 'blur(12px)' }}
-      whileInView={{ opacity: 1, y: 0, rotateX: 0, filter: 'blur(0px)' }}
-      viewport={{ once: true, margin: '-8% 0px' }}
-      transition={{ duration: 1, ease: EASE, delay }}
+      initial={reduce ? false : { opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '0px 0px -8% 0px' }}
+      transition={{ duration: 0.8, ease: EASE, delay }}
     >
       {children}
     </motion.div>
@@ -172,7 +164,7 @@ export const Reveal = ({ children, delay = 0, className = '', y = 60, rotate = 1
 /* 3D tilt card with glare                                             */
 /* ------------------------------------------------------------------ */
 
-export const TiltCard = ({ children, className = '', max = 12, glare = true }: { children: React.ReactNode; className?: string; max?: number; glare?: boolean }) => {
+export const TiltCard = ({ children, className = '', max = 5, glare = true }: { children: React.ReactNode; className?: string; max?: number; glare?: boolean }) => {
   const ref = useRef<HTMLDivElement>(null);
   const rx = useMotionValue(0);
   const ry = useMotionValue(0);
@@ -182,7 +174,7 @@ export const TiltCard = ({ children, className = '', max = 12, glare = true }: {
   const srx = useSpring(rx, { stiffness: 200, damping: 18 });
   const sry = useSpring(ry, { stiffness: 200, damping: 18 });
   const glareBg = useTransform([gx, gy] as MotionValue<number>[], ([x, y]) =>
-    `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.35), rgba(255,255,255,0.06) 35%, transparent 60%)`);
+    `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.14), rgba(255,255,255,0.03) 35%, transparent 60%)`);
   const coarse = useCoarsePointer();
 
   const move = (e: React.PointerEvent) => {
@@ -372,18 +364,9 @@ export const ZoomLens = ({ src, alt, className = '', zoom = 2.4, size = 190 }: {
 /* Floating / levitating (bob) wrapper                                 */
 /* ------------------------------------------------------------------ */
 
-export const Float = ({ children, amp = 10, duration = 5, delay = 0, className = '' }: { children: React.ReactNode; amp?: number; duration?: number; delay?: number; className?: string }) => {
-  const reduce = useReducedMotion();
-  return (
-    <motion.div
-      className={className}
-      animate={reduce ? undefined : { y: [0, -amp, 0], rotate: [0, 0.8, 0, -0.8, 0] }}
-      transition={{ duration, repeat: Infinity, ease: 'easeInOut', delay }}
-    >
-      {children}
-    </motion.div>
-  );
-};
+export const Float = ({ children, className = '' }: { children: React.ReactNode; amp?: number; duration?: number; delay?: number; className?: string }) => (
+  <div className={className}>{children}</div>
+);
 
 /* ------------------------------------------------------------------ */
 /* Mouse parallax (cursor-reactive scene)                              */

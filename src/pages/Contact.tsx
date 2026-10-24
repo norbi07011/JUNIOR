@@ -3,8 +3,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Phone, Mail, MapPin, Clock, MessageSquare, Send, X } from 'lucide-react';
 import { translations, Language } from '../translations';
 import { fx } from '../translations/fx';
-import { EASE, Magnetic, Reveal, SplitText, TiltCard, Float, asset } from '../fx/core';
-import { shakeScreen, Spotlights, VictoryScene } from '../fx/canvas';
+import { EASE, Magnetic, Reveal, SplitText, TiltCard, asset } from '../fx/core';
+import { VictoryScene } from '../fx/canvas';
 import { useQuote, useTransitionNavigate } from '../fx/nav';
 import { CONTACT } from '../data';
 import { Eyebrow } from '../components/Shared';
@@ -57,10 +57,8 @@ export const Contact = ({ lang }: { lang: Language }) => {
   const body = () =>
     `${t.formName}: ${form.name}\n${t.formEmail}: ${form.email}\n${t.formPhone}: ${form.phone}\n${t.formService}: ${allServices.join(', ') || '—'}\n\n${form.message}`;
 
-  const celebrate = (el: HTMLElement, via: 'mail' | 'wa') => {
-    const r = el.getBoundingClientRect();
-    shakeScreen();
-    setVictory({ origin: { x: r.left + r.width / 2, y: r.top + r.height / 2 }, via });
+  const celebrate = (_el: HTMLElement, via: 'mail' | 'wa') => {
+    setVictory({ origin: { x: 0, y: 0 }, via });
   };
 
   const submit = (e: React.FormEvent) => {
@@ -70,7 +68,7 @@ export const Contact = ({ lang }: { lang: Language }) => {
     celebrate(btn ?? formRef.current!, 'mail');
     const subject = encodeURIComponent(`${allServices[0] || 'Aanvraag'} - ${form.name}`);
     const href = `mailto:${CONTACT.email}?subject=${subject}&body=${encodeURIComponent(body())}`;
-    setTimeout(() => { window.location.href = href; }, 1200);
+    setTimeout(() => { window.location.href = href; }, 700);
   };
 
   const whatsapp = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -91,21 +89,21 @@ export const Contact = ({ lang }: { lang: Language }) => {
     <div>
       {/* Business cards */}
       <section className="relative overflow-hidden pb-16 pt-36">
-        <Spotlights className="absolute inset-0 opacity-60" />
+        <div className="pointer-events-none absolute left-1/2 top-40 h-[40vmin] w-[70vmin] -translate-x-1/2 rounded-full bg-[var(--blue)]/10 blur-[120px]" />
         <div className="relative mx-auto max-w-7xl px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}><Eyebrow>{f.cardBadge}</Eyebrow></motion.div>
-          <SplitText as="h1" by="char" onView={false} delay={0.1} text={t.title} className="font-display mt-6 text-5xl font-extrabold tracking-tight md:text-8xl" />
+          <SplitText as="h1" onView={false} delay={0.1} text={t.title} className="font-display mt-6 text-5xl font-extrabold tracking-tight md:text-8xl" />
           <p className="mt-4 text-zinc-500">{f.cardTagline}</p>
           <div className="mt-14 flex flex-col items-center justify-center gap-10 lg:flex-row lg:gap-16">
             {['/wizytowka-przow.jpeg', '/wizytowka-tyl.jpeg'].map((src, i) => (
-              <motion.div key={src} initial={{ opacity: 0, y: 60, rotateX: 30 }} animate={{ opacity: 1, y: 0, rotateX: 0 }} transition={{ delay: 0.3 + i * 0.2, duration: 1.1, ease: EASE }} style={{ transformPerspective: 1000 }}>
-                <Float amp={9} duration={5 + i} delay={i}>
-                  <TiltCard className="rounded-2xl" max={16}>
+              <motion.div key={src} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.15, duration: 0.9, ease: EASE }}>
+                <div>
+                  <TiltCard className="rounded-2xl" max={6}>
                     <div className="aspect-[1050/600] w-[min(86vw,460px)] overflow-hidden rounded-2xl ring-1 ring-white/15 shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_70px_rgba(37,99,235,0.18)]">
                       <img src={asset(src)} alt={`JuniorJob ${i ? 'back' : 'front'}`} className="h-full w-full object-cover" />
                     </div>
                   </TiltCard>
-                </Float>
+                </div>
               </motion.div>
             ))}
           </div>

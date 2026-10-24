@@ -4,7 +4,7 @@ import { Menu, X, Mail, MessageSquare, Instagram, Facebook, Linkedin, ArrowUp, C
 import { useLocation } from 'react-router-dom';
 import { translations, Language } from '../translations';
 import { fx } from '../translations/fx';
-import { asset, Magnetic, TextFill, useLenis, VelocityMarquee, EASE } from '../fx/core';
+import { Magnetic, TextFill, useLenis, VelocityMarquee, EASE } from '../fx/core';
 import { TLink, useQuote } from '../fx/nav';
 import { CONTACT } from '../data';
 
@@ -273,20 +273,23 @@ export const Footer = ({ lang }: { lang: Language }) => {
   );
 };
 
-export const FloatingButtons = () => (
-  <div className="fixed bottom-5 right-5 z-40 flex flex-col gap-3 md:bottom-8 md:right-8">
-    <Magnetic strength={0.4}>
-      <a href={`mailto:${CONTACT.email}`} title="E-mail" aria-label="E-mail"
-        className="flex h-13 w-13 items-center justify-center rounded-full bg-[var(--blue)] text-white shadow-[0_10px_30px_var(--blue-glow)] transition-transform hover:scale-110 h-[52px] w-[52px]">
-        <Mail size={22} />
-      </a>
-    </Magnetic>
-    <Magnetic strength={0.4}>
-      <a href={`https://wa.me/${CONTACT.whatsapp}`} target="_blank" rel="noreferrer" title="WhatsApp" aria-label="WhatsApp"
-        className="relative flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#22c55e] text-white shadow-[0_10px_30px_rgba(34,197,94,0.35)] transition-transform hover:scale-110">
-        <span className="absolute inset-0 animate-ping rounded-full bg-[#22c55e]/40" />
-        <MessageSquare size={22} className="relative" />
-      </a>
-    </Magnetic>
-  </div>
-);
+export const FloatingButtons = () => {
+  const { scrollY } = useScroll();
+  const [show, setShow] = useState(false);
+  useMotionValueEvent(scrollY, 'change', (y) => setShow(y > window.innerHeight * 0.9));
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+          className="fixed bottom-5 right-5 z-40 flex items-center gap-1 rounded-full border border-white/10 bg-[#0b0d12]/80 p-1 shadow-[0_20px_50px_rgba(0,0,0,.5)] backdrop-blur-xl md:bottom-6 md:right-6">
+          <a href={`https://wa.me/${CONTACT.whatsapp}`} target="_blank" rel="noreferrer" aria-label="WhatsApp"
+            className="flex h-11 items-center gap-2 rounded-full bg-[#22c55e] px-4 text-sm font-bold text-white transition-colors hover:bg-[#16a34a]">
+            <MessageSquare size={18} /> <span className="hidden sm:inline">WhatsApp</span>
+          </a>
+          <a href={CONTACT.phoneHref} aria-label="Bel" className="flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"><Phone size={18} /></a>
+          <a href={`mailto:${CONTACT.email}`} aria-label="E-mail" className="flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"><Mail size={18} /></a>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
