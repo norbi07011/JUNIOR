@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
@@ -172,47 +173,77 @@ export const LogoIntro = ({ label = 'Skip', logo }: { label?: string; logo: stri
   const [show, setShow] = useState(() => {
     try { return !sessionStorage.getItem('jj_intro'); } catch { return false; }
   });
+  const [leaving, setLeaving] = useState(false);
   const finish = () => {
     try { sessionStorage.setItem('jj_intro', '1'); } catch { /* storage blocked */ }
-    setShow(false);
+    setLeaving(true);
+    setTimeout(() => setShow(false), 950);
   };
   useEffect(() => {
     if (!show) return;
-    if (reduce) { finish(); return; }
-    const t = setTimeout(finish, 1900);
-    return () => clearTimeout(t);
+    if (reduce) { try { sessionStorage.setItem('jj_intro', '1'); } catch { /* */ } setShow(false); return; }
+    document.documentElement.style.overflow = 'hidden';
+    const t = setTimeout(finish, 2700);
+    return () => { clearTimeout(t); document.documentElement.style.overflow = ''; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, reduce]);
+  useEffect(() => { if (!show) document.documentElement.style.overflow = ''; }, [show]);
+
+  if (!show) return null;
+  const E = [0.16, 1, 0.3, 1] as const;
+  const IO = [0.76, 0, 0.24, 1] as const;
+  // the cut-out logo is split into three layers with clip-paths: window icon, wordmark, tagline
+  const layer = (clip: string) => ({ clipPath: clip, WebkitClipPath: clip });
+  const ICON = 'polygon(0 0, 21% 0, 21% 42%, 12% 42%, 12% 100%, 0 100%)';
+  const WORD = 'polygon(12% 42%, 100% 42%, 100% 81%, 12% 81%)';
+  const TAG = 'polygon(12% 81%, 100% 81%, 100% 100%, 12% 100%)';
+  const mask = { WebkitMaskImage: `url(${logo})`, maskImage: `url(${logo})`, WebkitMaskSize: '100% 100%', maskSize: '100% 100%' } as React.CSSProperties;
 
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-[#050608]"
-          exit={{ clipPath: 'inset(0% 0% 100% 0%)' }}
-          initial={{ clipPath: 'inset(0% 0% 0% 0%)' }}
-          transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
-        >
-          <motion.div
-            className="relative w-[min(78vw,560px)] overflow-hidden"
-            initial={{ opacity: 0, scale: 1.08, filter: 'blur(6px)' }}
-            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <img src={logo} alt="JuniorJob Onderhoud" className="block w-full [mask-image:radial-gradient(ellipse_62%_55%_at_50%_50%,#000_55%,transparent_100%)]" />
-            <motion.div
-              aria-hidden
-              className="pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent mix-blend-overlay"
-              initial={{ left: '-40%' }}
-              animate={{ left: '120%' }}
-              transition={{ duration: 1.2, delay: 0.5, ease: 'easeInOut' }}
-            />
-          </motion.div>
-          <motion.div className="absolute bottom-0 left-0 h-[2px] bg-[var(--blue-bright)]" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 1.8, ease: 'linear' }} />
-          <button onClick={finish} className="absolute bottom-8 right-8 text-xs uppercase tracking-[0.3em] text-zinc-500 transition-colors hover:text-white">{label} →</button>
-        </motion.div>
+    <div className="fixed inset-0 z-[200]" aria-hidden={leaving}>
+      {/* curtain halves */}
+      <motion.div className="absolute inset-x-0 top-0 h-1/2 bg-[#040507]" animate={leaving ? { y: '-100%' } : { y: 0 }} transition={{ duration: 0.9, ease: IO, delay: 0.05 }} />
+      <motion.div className="absolute inset-x-0 bottom-0 h-1/2 bg-[#040507]" animate={leaving ? { y: '100%' } : { y: 0 }} transition={{ duration: 0.9, ease: IO, delay: 0.05 }} />
+
+      <motion.div className="absolute inset-0 flex items-center justify-center"
+        animate={leaving ? { opacity: 0, scale: 1.12 } : { opacity: 1, scale: 1 }}
+        transition={{ duration: 0.7, ease: E }}>
+        {/* ambient glow */}
+        <motion.div className="absolute h-[70vmin] w-[110vmin] bg-[radial-gradient(ellipse_closest-side,rgba(37,99,235,.32),rgba(37,99,235,.08)_55%,transparent)]"
+          initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: [0, 1, 0.6], scale: [0.6, 1.05, 1] }} transition={{ duration: 2.2, ease: E, delay: 0.3 }} />
+        {/* light line */}
+        <motion.div className="absolute h-px w-[70vmin] bg-gradient-to-r from-transparent via-[var(--blue-bright)] to-transparent shadow-[0_0_20px_var(--blue-bright)]"
+          initial={{ scaleX: 0, opacity: 0 }} animate={{ scaleX: [0, 1, 1.4], opacity: [0, 1, 0] }} transition={{ duration: 1.1, ease: E, times: [0, 0.45, 1] }} />
+
+        <div className="relative w-[min(84vw,640px)]" style={{ aspectRatio: '1111 / 446' }}>
+          {/* window icon: rises out of a bottom-up wipe */}
+          <motion.img src={logo} alt="" draggable={false} className="absolute inset-0 h-full w-full" style={layer(ICON)}
+            initial={{ y: 40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1, ease: E, delay: 0.35 }} />
+          {/* blue glass bloom behind the icon */}
+          <motion.div className="absolute left-[-6%] top-[-4%] h-[110%] w-[34%] bg-[radial-gradient(ellipse_closest-side,rgba(37,99,235,.55),transparent)]"
+            initial={{ opacity: 0 }} animate={{ opacity: [0, 0.55, 0.2] }} transition={{ duration: 1.6, delay: 0.6 }} style={{ zIndex: -1 }} />
+          {/* wordmark: left-to-right mask wipe, sharpening */}
+          <motion.img src={logo} alt="JuniorJob Onderhoud" draggable={false} className="absolute inset-0 h-full w-full"
+            initial={{ clipPath: 'polygon(12% 42%, 12% 42%, 12% 81%, 12% 81%)', x: -16 }}
+            animate={{ clipPath: WORD, x: 0 }}
+            transition={{ duration: 1.05, ease: IO, delay: 0.8 }} />
+          {/* tagline */}
+          <motion.img src={logo} alt="" draggable={false} className="absolute inset-0 h-full w-full" style={layer(TAG)}
+            initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: E, delay: 1.45 }} />
+          {/* specular sweep, masked to the logo's own shape */}
+          <motion.div className="pointer-events-none absolute inset-0 mix-blend-screen" style={{ ...mask, backgroundImage: 'linear-gradient(105deg, transparent 42%, rgba(255,255,255,.95) 50%, rgba(147,197,253,.6) 53%, transparent 60%)', backgroundSize: '300% 100%' }}
+            initial={{ backgroundPosition: '100% 0' }} animate={{ backgroundPosition: '-50% 0' }}
+            transition={{ duration: 1.1, ease: 'easeInOut', delay: 1.65 }} />
+        </div>
+      </motion.div>
+
+      {!leaving && (
+        <button onClick={finish} className="absolute bottom-8 right-8 z-10 text-xs uppercase tracking-[0.3em] text-zinc-500 transition-colors hover:text-white">{label} →</button>
       )}
-    </AnimatePresence>
+    </div>
   );
 };
 

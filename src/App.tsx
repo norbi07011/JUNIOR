@@ -64,7 +64,7 @@ export default function App() {
       <SmoothScroll>
         <QuoteProvider>
           <ScrollToTop />
-          <LogoIntro label={fx[lang].skipIntro} logo={asset('/logo.jpeg')} />
+          <LogoIntro label={fx[lang].skipIntro} logo={asset('/logo-cut.png')} />
           <ScrollProgress />
           <div id="shake-root" className="grain flex min-h-screen flex-col bg-[var(--bg)] font-sans text-white">
             <Navbar lang={lang} setLang={setLang} />
